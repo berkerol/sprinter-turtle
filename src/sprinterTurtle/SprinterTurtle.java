@@ -51,13 +51,13 @@ public class SprinterTurtle {
         }
         int laneHeight = input.nextInt();
         input.nextLine();
-        String[] laneOptions = makeOptions((dimensions[1] - 40) / laneHeight - 1);
+        String[] laneOptions = makeOptions((dimensions[1]) / laneHeight - 1);
         int lanes = Integer.parseInt((String) JOptionPane.showInputDialog(null, "Choose the number of the lanes.", title,
                 JOptionPane.QUESTION_MESSAGE, null, laneOptions, laneOptions[laneOptions.length - 1]));
         boardHeight = (lanes + 1) * laneHeight;
         int lineWidth = input.nextInt();
         input.nextLine();
-        String[] lineOptions = makeOptions((dimensions[0] - 17) / lineWidth);
+        String[] lineOptions = makeOptions((dimensions[0]) / lineWidth);
         int lines = Integer.parseInt((String) JOptionPane.showInputDialog(null, "Choose the number of the lines.", title,
                 JOptionPane.QUESTION_MESSAGE, null, lineOptions, lineOptions[lineOptions.length - 1]));
         boardWidth = lines * lineWidth;
@@ -154,7 +154,7 @@ public class SprinterTurtle {
             @Override
             public void run() {
                 frame = new JFrame(title);
-                frame.setSize(boardWidth + 17, boardHeight + 40);
+                frame.setSize(boardWidth, boardHeight);
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 frame.setLocationRelativeTo(null);
                 frame.setVisible(true);
@@ -548,6 +548,12 @@ public class SprinterTurtle {
                     double speed = vehicle1.getSpeed();
                     vehicle1.setSpeed(vehicle2.getSpeed());
                     vehicle2.setSpeed(speed);
+                    if (vehicle1.getImage().getX() < vehicle2.getImage().getX()) {
+                        vehicle1.getImage().setLocation(vehicle2.getImage().getX() - vehicle1.getWidth(), vehicle1.getImage().getY());
+                    }
+                    else {
+                        vehicle2.getImage().setLocation(vehicle1.getImage().getX() - vehicle2.getWidth(), vehicle2.getImage().getY());
+                    }
                 }
             }
             double vehicleX = vehicle1.getImage().getX() + vehicle1.getSpeed() * Vehicle.getVehicleSpeed();

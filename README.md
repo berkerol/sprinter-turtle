@@ -2,7 +2,7 @@
 
 2D top down road crossing game.
 
-Also works as a beautiful simulation when probabilites are increased.
+Also works as a beautiful simulation when probabilities are increased.
 
 ![ss](screenshots/ss.bmp)
 
@@ -39,16 +39,16 @@ Also works as a beautiful simulation when probabilites are increased.
         * It is the second (last) phase of the train.
         * They are opaque and red.
         * They block the vertical movement of the turtle. (If turtle touches them, it dies.)
-        * They can explode by meteors and rockets and creates explosions.
+        * They can explode because of meteors, rockets, mouse clicks and creates explosions.
   * Turtle
     * Main entity in this game.
     * Only user controllable entity in this game.
     * It can be moved by keyboard and mouse.
     * It turns to left and right when it moves in these directions.
     * It can launch rockets to explode trains and vehicles.
-    * It stays in the safe zone in the beginning.
-    * It tries to reach the top without touching any trains and vehicles.
-    * After touching the top, it flips vertically then it tries to reach the safe zone.
+    * It can die because of meteors, trains and vehicles.
+    * It stays in the safe zone in the beginning and tries to reach the top without dying.
+    * After reaching the top, it flips vertically then it tries to reach the safe zone.
     * After reaching the safe zone, it again flips vertically.
     * Reaching the safe zone again completes one level.
     * By completion of one level, turtle and vehicle speeds are
@@ -59,7 +59,7 @@ Also works as a beautiful simulation when probabilites are increased.
       * They can be spawned in any lane in any direction.
       * They are opaque and have random colors.
     * They block the movements of the turtle. (If turtle touches them, it dies.)
-    * They can explode by meteors and rockets and creates explosions.
+    * They can explode because of meteors, rockets, mouse clicks and creates explosions.
 
 ## Controls
 
@@ -67,7 +67,7 @@ Also works as a beautiful simulation when probabilites are increased.
 * Pause the game by pressing _P_.
 * Pausing automatically when window loses focus.
 * View the detailed cheats information by pressing _I_.
-* Reset the turtle to safe zone by preesing _R_.
+* Reset the turtle to safe zone by pressing _R_.
 * Clear all trains and vehicles from the board by pressing _C_.
 * Explode trains and vehicles by left click.
 * Launch rockets by pressing _UP, DOWN, LEFT, RIGHT_ keys.
@@ -81,7 +81,7 @@ You can set these options using _SprinterTurtleConfiguration.ini_ file after bui
 ## Customizations
 
 * Specify the lane height and line width.
-* Choose how many lanes and lines will be on the baord.
+* Choose how many lanes and lines will be on the board.
 * Set how many frames appear in one second.
 * Choose how many pixels the elements move in one second by default.
 (If you want to change the speed of all elements,
@@ -98,7 +98,7 @@ change this otherwise use that element's speed multiplier.)
   * Durations of explosion, meteor, train warning and train.
   * Size multipliers of explosion, meteor, rocket, train, turtle and vehicle.
   * Highest and lowest sizes of meteor and vehicle.
-  * Spawning probabilites of meteor, train, and vehicle.
+  * Spawning probabilities of meteor, train, and vehicle.
   * Long vehicle probability and size multiplier.
   * Speed multipliers of rocket, turtle and vehicle.
   * Highest and lowest speeds of vehicle.
