@@ -1,7 +1,9 @@
 package sprinterTurtle;
 
 import acm.graphics.GCanvas;
+import acm.graphics.GLabel;
 import acm.graphics.GObject;
+import acm.graphics.GOval;
 import acm.graphics.GRect;
 import java.awt.Dimension;
 import java.awt.Toolkit;
@@ -43,7 +45,7 @@ public class SprinterTurtle {
         int[] dimensions = {(int) dimension.getWidth(), (int) dimension.getHeight()};
         Scanner input = null;
         try {
-            input = new Scanner(new File("SprinterTurtleConfiguration.ini"));
+            input = new Scanner(new File("SprinterTurtleConfiguration.ini"), "UTF-8");
         }
         catch (FileNotFoundException ex) {
             JOptionPane.showMessageDialog(null, ex, title, JOptionPane.ERROR_MESSAGE);
@@ -174,8 +176,8 @@ public class SprinterTurtle {
                 }
             }
         }
-        for (int i = 0; i < background.getLabels().length; i++) {
-            CANVAS.add(background.getLabels()[i]);
+        for (GLabel label : background.getLabels()) {
+            CANVAS.add(label);
         }
         turtle = new Turtle(turtleMaxTurn, boardWidth / 2, boardHeight - turtleSize / 2, turtleSize, turtleSpeed, turtleSpeedIncrement);
         CANVAS.add(turtle.getImage());
@@ -370,8 +372,8 @@ public class SprinterTurtle {
         }
         if (hits != 0) {
             Explosion explosion = new Explosion(alpha, hits, object.getX(), object.getY(), size);
-            for (int i = 0; i < explosion.getImage().length; i++) {
-                CANVAS.add(explosion.getImage()[i]);
+            for (GOval image : explosion.getImage()) {
+                CANVAS.add(image);
             }
             EXPLOSIONS.add(explosion);
             return true;
@@ -468,8 +470,8 @@ public class SprinterTurtle {
         for (int i = 0; i < EXPLOSIONS.size(); i++) {
             Explosion explosion = EXPLOSIONS.get(i);
             if (explosion.update(duration)) {
-                for (int j = 0; j < explosion.getImage().length; j++) {
-                    CANVAS.remove(explosion.getImage()[j]);
+                for (GOval image : explosion.getImage()) {
+                    CANVAS.remove(image);
                 }
                 EXPLOSIONS.remove(explosion);
                 i--;
