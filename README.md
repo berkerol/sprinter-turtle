@@ -1,10 +1,11 @@
 # Sprinter Turtle
 
-2D top down road crossing game.
+2D top down road crossing game. Also works as a beautiful simulation when probabilities are increased. Written in ES6\. You can play it [here](https://berkerol.github.io/sprinter-turtle/sprinter-turtle.html).
 
-Also works as a beautiful simulation when probabilities are increased.
+## Controls
 
-![ss](screenshots/ss.bmp)
+- Move the turtle by pressing _W, A, S, D_.
+- Launch rockets by pressing _UP, DOWN, LEFT, RIGHT_.
 
 ## Gameplay & Features
 
@@ -12,17 +13,16 @@ Also works as a beautiful simulation when probabilities are increased.
 
   - Explosion
 
-    - They appear after trains and vehicles are exploded by meteors, rockets and mouse clicks.
-    - They are not opaque so any entity below them is visible.
+    - They appear after trains and vehicles are exploded by meteors and rockets.
+    - They are transparent so any entity below them is visible.
     - They do not block any movement of any entity.
-    - They have 4 different phases with 4 different colors.
     - Their sizes grow linearly with the entities are exploded within them.
 
   - Meteor
 
     - They appear in random sizes and random positions from time to time.
     - They have random colors.
-    - They are not opaque so any entity below them is visible.
+    - They are transparent so any entity below them is visible.
     - They do not block any movement of any entity.
     - Time to hit to the ground is visible on them.
     - Until they disappear they have no effect but by the time they disappear they explode trains, vehicles and the turtle if they are below meteor.
@@ -50,14 +50,12 @@ Also works as a beautiful simulation when probabilities are increased.
         - It is the second (last) phase of the train.
         - They are opaque and red.
         - They block the vertical movement of the turtle. (If turtle touches them, it dies.)
-        - They can explode because of meteors, rockets, mouse clicks and creates explosions.
+        - They can explode because of meteors and rockets and creates explosions.
 
   - Turtle
 
     - Main entity in this game.
     - Only user controllable entity in this game.
-    - It can be moved by keyboard and mouse.
-    - It turns to left and right when it moves in these directions.
     - It can launch rockets to explode trains and vehicles.
     - It can die because of meteors, trains and vehicles.
     - It stays in the safe zone in the beginning and tries to reach the top without dying.
@@ -76,57 +74,7 @@ Also works as a beautiful simulation when probabilities are increased.
 
     - They block the movements of the turtle. (If turtle touches them, it dies.)
 
-    - They can explode because of meteors, rockets, mouse clicks and creates explosions.
-
-## Controls
-
-- Move the turtle by mouse or _W, A, S, D_ keys.
-- Pause the game by pressing _P_.
-- Pausing automatically when window loses focus.
-- View the detailed cheats information by pressing _I_.
-- Reset the turtle to safe zone by pressing _R_.
-- Clear all trains and vehicles from the board by pressing _C_.
-- Explode trains and vehicles by left click.
-- Launch rockets by pressing _UP, DOWN, LEFT, RIGHT_ keys.
-- Launch rockets in the direction of mouse by right click.
-- Drag the turtle in paused mode without dying by pressing _CONTROL_ and moving the mouse.
-
-There are some customization options for adding variety. You can set these options using _SprinterTurtleConfiguration.ini_ file after building (Hard-coding options into code is not necessary).
-
-## Customizations
-
-- Specify the lane height and line width.
-- Choose how many lanes and lines will be on the board.
-- Set how many frames appear in one second.
-- Choose how many pixels the elements move in one second by default. (If you want to change the speed of all elements, change this otherwise use that element's speed multiplier.)
-- Select the background color (colors of the labels and lines are the inverse of this color).
-- Select what happens when turtle dies (hopefully not soon:smile:).
-
-  - Exits the game.
-  - Continues the game from safe zone and adds one to cheats.
-
-- Select the control type (mouse or keyboard).
-
-- Specify label size and lane gap height.
-
-- Choose the starting level.
-
-- Specify
-
-  - Alpha values of the colors of explosion and meteor.
-  - Durations of explosion, meteor, train warning and train.
-  - Size multipliers of explosion, meteor, rocket, train, turtle and vehicle.
-  - Highest and lowest sizes of meteor and vehicle.
-  - Spawning probabilities of meteor, train, and vehicle.
-  - Long vehicle probability and size multiplier.
-  - Speed multipliers of rocket, turtle and vehicle.
-  - Highest and lowest speeds of vehicle.
-  - Speed increments of turtle and vehicle per round.
-  - Turtle turn multiplier and maximum turn.
-
-## Installation
-
-Built by NetBeans 8.2 (whole repository is the NetBeans project). Requires ACM Java Libraries.
+    - They can explode because of meteors and rockets and creates explosions.
 
 ## Contribution
 
@@ -134,4 +82,4 @@ Feel free to contribute.
 
 ## Distribution
 
-You can distribute this software (jar file in the dist folder) freely under GNU GPL v3.0.
+You can distribute this software freely under GNU GPL v3.0.
