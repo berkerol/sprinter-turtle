@@ -150,6 +150,7 @@ for (let i = 0; i < train.lanes; i++) {
 draw();
 document.addEventListener("keydown", keyDownHandler);
 document.addEventListener("keyup", keyUpHandler);
+document.addEventListener("mousedown", mouseDownHandler);
 window.addEventListener("resize", resizeHandler);
 
 function draw() {
@@ -554,6 +555,13 @@ function keyUpHandler(e) {
   if (e.keyCode === 65 || e.keyCode === 68) {
     turtle.speedX = 0;
   }
+}
+
+function mouseDownHandler(e) {
+  let x = e.clientX - canvas.offsetLeft - turtle.x;
+  let y = e.clientY - canvas.offsetTop - turtle.y;
+  let norm = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+  addRocket(x / norm * rocket.speed, y / norm * rocket.speed);
 }
 
 function resizeHandler() {
