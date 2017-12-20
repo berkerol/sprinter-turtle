@@ -407,8 +407,10 @@ function removeMeteors() {
       m.count--;
     } else {
       meteors.splice(i, 1);
+      if (circle_and_circle(m, turtle)) {
+        die("Meteor");
+      }
       addExplosion(m);
-      dieM(m);
     }
   }
 }
@@ -427,7 +429,9 @@ function removeTrains() {
     } else {
       if (t.count < train.duration) {
         t.count++;
-        dieTV("Train", t);
+        if (rect_and_circle(t, turtle)) {
+          die("Train");
+        }
       } else {
         trains.splice(i, 1);
       }
@@ -450,7 +454,9 @@ function removeVehicles() {
       vehicles.splice(i, 1);
     } else {
       v1.x = d;
-      dieTV("Vehicle", v1);
+      if (rect_and_circle(v1, turtle)) {
+        die("Vehicle");
+      }
     }
   }
 }
@@ -485,18 +491,6 @@ function circle_and_circle(c1, c2) {
   let dx = c1.x - c2.x;
   let dy = c1.y - c2.y;
   return Math.sqrt(dx * dx + dy * dy) < c1.radius + c2.radius;
-}
-
-function dieTV(type, o) {
-  if (rect_and_circle(o, turtle)) {
-    die(type);
-  }
-}
-
-function dieM(m) {
-  if (circle_and_circle(m, turtle)) {
-    die("Meteor");
-  }
 }
 
 function die(type) {
