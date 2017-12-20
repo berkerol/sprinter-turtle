@@ -136,17 +136,6 @@ for (let i = 0; i < Math.floor(lanes / 2); i++) {
     }
   }
 }
-for (let i = 0; i < train.lanes; i++) {
-  trains.push({
-    x: 0,
-    y: 2 * (i + 1) * laneHeight - train.height / 2,
-    count: 0,
-    usage: false,
-    warningCount: 0,
-    width: train.width,
-    height: train.height
-  })
-}
 draw();
 document.addEventListener("keydown", keyDownHandler);
 document.addEventListener("keyup", keyUpHandler);
@@ -169,9 +158,7 @@ function draw() {
     drawCircle(r.x, r.y, r.radius, r.color);
   }
   for (let t of trains) {
-    if (t.usage) {
-      drawRect(t);
-    }
+    drawRect(t);
   }
   for (let v of vehicles) {
     drawVehicle(v);
@@ -249,11 +236,11 @@ function addExplosion(o) {
       vehicles.splice(i, 1);
     }
   }
-  for (let t of trains) {
-    if (t.usage && t.count !== 0 && rect_and_circle(t, o)) {
+  for (let i = trains.length - 1; i >= 0; i--) {
+    let t = trains[i];
+    if (t.count !== 0 && rect_and_circle(t, o)) {
       hits++;
-      t.count = 0;
-      t.usage = false;
+      trains.splice(i, 1);
     }
   }
   if (hits > 0) {
@@ -360,11 +347,20 @@ function createMeteors() {
 function createTrains() {
   if (Math.random() < train.probability) {
     let lane = Math.floor(Math.random() * train.lanes);
-    if (!trains[lane].usage) {
-      trains[lane].usage = true;
-      trains[lane].warningCount = 1;
-      trains[lane].color = train.warningColor;
+    for (let t of trains) {
+      if (t.lane === lane) {
+        return;
+      }
     }
+    trains.push({
+      x: 0,
+      y: 2 * (lane + 1) * laneHeight - train.height / 2,
+      width: train.width,
+      height: train.height,
+      color: train.warningColor,
+      count: 0,
+      warningCount: 1
+    });
   }
 }
 
@@ -418,25 +414,22 @@ function removeMeteors() {
 }
 
 function removeTrains() {
-  for (let t of trains) {
-    if (t.usage) {
-      if (t.warningCount !== 0) {
-        if (t.warningCount < train.warningDuration) {
-          t.warningCount++;
-        } else {
-          t.count = 1;
-          t.warningCount = 0;
-          t.color = train.color;
-        }
+  for (let i = trains.length - 1; i >= 0; i--) {
+    let t = trains[i];
+    if (t.warningCount !== 0) {
+      if (t.warningCount < train.warningDuration) {
+        t.warningCount++;
+      } else {
+        t.count = 1;
+        t.warningCount = 0;
+        t.color = train.color;
       }
-      if (t.count !== 0) {
-        if (t.count < train.duration) {
-          t.count++;
-          dieTV("Train", t);
-        } else {
-          t.count = 0;
-          t.usage = false;
-        }
+    } else {
+      if (t.count < train.duration) {
+        t.count++;
+        dieTV("Train", t);
+      } else {
+        trains.splice(i, 1);
       }
     }
   }
