@@ -98,18 +98,12 @@ for (let i = 0; i < lane.countY - lane.countY / 2; i++) {
   if (i !== Math.floor(lane.countY / 2)) {
     continuousLanes.push({
       x: 0,
-      y: 2 * (i + 1) * lane.height - lane.gap / 2,
-      width: canvas.width,
-      height: lane.gap,
-      color: lane.color
+      y: 2 * (i + 1) * lane.height - lane.gap / 2
     });
   } else {
     continuousLanes.push({
       x: 0,
-      y: (2 * i + 1) * lane.height - lane.gap / 2,
-      width: canvas.width,
-      height: lane.gap,
-      color: lane.color
+      y: (2 * i + 1) * lane.height - lane.gap / 2
     });
   }
 }
@@ -118,24 +112,33 @@ for (let i = 0; i < Math.floor(lane.countY / 2); i++) {
     if (j % 2 === 0) {
       discreteLanes.push({
         x: j * lane.width,
-        y: (2 * i + 1) * lane.height - lane.gap / 2,
-        width: lane.width,
-        height: lane.gap,
-        color: lane.color
+        y: (2 * i + 1) * lane.height - lane.gap / 2
       });
     }
   }
 }
+let backgroundCanvas = document.createElement("canvas");
+backgroundCanvas.width = canvas.width;
+backgroundCanvas.height = canvas.height;
+let backgroundCtx = backgroundCanvas.getContext("2d");
+backgroundCtx.fillStyle = lane.color;
+drawLanes(continuousLanes, canvas.width);
+drawLanes(discreteLanes, lane.width);
 draw();
 document.addEventListener("keydown", keyDownHandler);
 document.addEventListener("keyup", keyUpHandler);
 document.addEventListener("mousedown", mouseDownHandler);
 window.addEventListener("resize", resizeHandler);
 
+function drawLanes (lanes, width) {
+  for (let l of lanes) {
+    backgroundCtx.fillRect(l.x, l.y, width, lane.gap);
+  }
+}
+
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  drawLanes(continuousLanes);
-  drawLanes(discreteLanes);
+  ctx.drawImage(backgroundCanvas, 0, 0);
   drawCircle(turtle.x, turtle.y, turtle.radius, turtle.color);
   for (let e of explosions) {
     drawCircle(e.x, e.y, e.radius + e.count, explosion.color);
@@ -147,7 +150,7 @@ function draw() {
     drawCircle(r.x, r.y, r.radius, r.color);
   }
   for (let t of trains) {
-    drawRect(t);
+    drawTrain(t);
   }
   for (let v of vehicles) {
     drawVehicle(v);
@@ -167,18 +170,6 @@ function draw() {
   requestAnimationFrame(draw);
 }
 
-function drawRect(r) {
-  ctx.beginPath();
-  ctx.rect(r.x, r.y, r.width, r.height);
-  fill(r.color);
-}
-
-function drawLanes(lanes) {
-  for (let l of lanes) {
-    drawRect(l);
-  }
-}
-
 function drawCircle(x, y, radius, color) {
   ctx.beginPath();
   ctx.arc(x, y, radius, 0, 2 * Math.PI);
@@ -188,6 +179,12 @@ function drawCircle(x, y, radius, color) {
 function drawMeteor(m) {
   drawCircle(m.x, m.y, m.radius, m.color);
   drawLabel(meteor.font, m.colorInverted, Math.floor(m.count / meteor.step), m.x - m.radius / 3, m.y + m.radius / 3);
+}
+
+function drawTrain(r) {
+  ctx.beginPath();
+  ctx.rect(r.x, r.y, r.width, r.height);
+  fill(r.color);
 }
 
 function drawVehicle(v) {
