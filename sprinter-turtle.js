@@ -3,13 +3,10 @@ let ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-let labelSize = 0.8 * laneHeight;
-let pixelsPerFrame = 0.6;
-let deathBehavior = false;
 let level = 1;
 let lives = 10;
-let rocket_count = 10;
-
+let rocketCount = 10;
+let pixelsPerFrame = 0.6;
 
 let lane = {
   width: 60,
@@ -90,7 +87,7 @@ let label = {
 };
 
 let continuousLanes = [];
-let fragmentedLanes = [];
+let discreteLanes = [];
 let explosions = [];
 let meteors = [];
 let rockets = [];
@@ -119,7 +116,7 @@ for (let i = 0; i < lane.countY - lane.countY / 2; i++) {
 for (let i = 0; i < Math.floor(lane.countY / 2); i++) {
   for (let j = 0; j < lane.countX; j++) {
     if (j % 2 === 0) {
-      fragmentedLanes.push({
+      discreteLanes.push({
         x: j * lane.width,
         y: (2 * i + 1) * lane.height - lane.gap / 2,
         width: lane.width,
@@ -138,7 +135,7 @@ window.addEventListener("resize", resizeHandler);
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawLanes(continuousLanes);
-  drawLanes(fragmentedLanes);
+  drawLanes(discreteLanes);
   drawCircle(turtle.x, turtle.y, turtle.radius, turtle.color);
   for (let e of explosions) {
     drawCircle(e.x, e.y, e.radius + e.count, explosion.color);
@@ -157,7 +154,7 @@ function draw() {
   }
   drawLabel(label.font, label.color, "Level: " + level, 10, canvas.height - label.margin);
   drawLabel(label.font, label.color, "Lives: " + lives, canvas.width - 270, canvas.height - label.margin);
-  drawLabel(label.font, label.color, "Rockets: " + rocket_count, canvas.width - 140, canvas.height - label.margin);
+  drawLabel(label.font, label.color, "Rockets: " + rocketCount, canvas.width - 140, canvas.height - label.margin);
   processExplosions();
   processRockets();
   processTurtle();
@@ -190,7 +187,7 @@ function drawCircle(x, y, radius, color) {
 
 function drawMeteor(m) {
   drawCircle(m.x, m.y, m.radius, m.color);
-  drawLabel(meteor.font, m.color_invert, Math.floor(m.count / meteor.step), m.x - m.radius / 3, m.y + m.radius / 3);
+  drawLabel(meteor.font, m.colorInverted, Math.floor(m.count / meteor.step), m.x - m.radius / 3, m.y + m.radius / 3);
 }
 
 function drawVehicle(v) {
@@ -247,8 +244,8 @@ function addExplosion(o) {
 }
 
 function addRocket(speedX, speedY) {
-  if (rocket_count > 0) {
-    rocket_count--;
+  if (rocketCount > 0) {
+    rocketCount--;
     rockets.push({
       x: turtle.x,
       y: turtle.y,
@@ -323,15 +320,15 @@ function processTurtle() {
 
 function createMeteors() {
   if (Math.random() < meteor.probability) {
-    let color = generateRandomRgbColor();
+    let c = generateRandomRgbColor();
     let radius = Math.floor(meteor.lowestRadius + Math.random() * (meteor.highestRadius - meteor.lowestRadius));
     meteors.push({
       x: Math.floor(Math.random() * (canvas.width - radius)),
       y: Math.floor(Math.random() * (lane.countY * lane.height - radius)),
       radius,
       count: meteor.duration,
-      color: "rgba(" + color[0] + ", " + color[1] + ", " + color[2] + ", " + meteor.alpha + ")",
-      color_invert: "rgba(" + (255 - color[0]) + ", " + (255 - color[1]) + ", " + (255 - color[2]) + ", " + meteor.alpha + ")"
+      color: "rgba(" + c[0] + ", " + c[1] + ", " + c[2] + ", " + meteor.alpha + ")",
+      colorInverted: "rgba(" + (255 - c[0]) + ", " + (255 - c[1]) + ", " + (255 - c[2]) + ", " + meteor.alpha + ")"
     });
   }
 }
