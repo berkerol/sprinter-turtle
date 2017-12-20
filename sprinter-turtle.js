@@ -34,7 +34,7 @@ let explosion = {
 let meteor = {
   alpha: 0.5,
   duration: 150,
-  font: "44px Calibri",
+  font: "44px Arial",
   highestRadius: 1.2 * laneHeight,
   lowestRadius: 0.8 * laneHeight,
   probability: 0.005,
@@ -91,7 +91,7 @@ let vehicle = {
 };
 
 let label = {
-  font: "24px Calibri",
+  font: "24px Arial",
   color: "#FFFFFF",
   margin: 10
 };
@@ -177,8 +177,8 @@ function draw() {
     drawVehicle(v);
   }
   drawLabel(label.font, label.color, "Level: " + level, 10, canvas.height - label.margin);
-  drawLabel(label.font, label.color, "Lives: " + lives, canvas.width - 280, canvas.height - label.margin);
-  drawLabel(label.font, label.color, "Rockets: " + rocket_count, canvas.width - 150, canvas.height - label.margin);
+  drawLabel(label.font, label.color, "Lives: " + lives, canvas.width - 270, canvas.height - label.margin);
+  drawLabel(label.font, label.color, "Rockets: " + rocket_count, canvas.width - 140, canvas.height - label.margin);
   processExplosions();
   processRockets();
   processTurtle();
