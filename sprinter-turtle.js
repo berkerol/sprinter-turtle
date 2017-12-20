@@ -3,54 +3,50 @@ let ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-let laneHeight = 40;
-let lanes = Math.floor(canvas.height / laneHeight - 1);
-let lineWidth = 60;
-let lines = canvas.width / lineWidth;
-let laneGapHeight = 0.01 * laneHeight;
 let labelSize = 0.8 * laneHeight;
 let pixelsPerFrame = 0.6;
 let deathBehavior = false;
-let laneColor = "#FFFFFF";
 let level = 1;
 let lives = 10;
 let rocket_count = 10;
 
-let background = {
-  x: 0,
-  y: 0,
-  width: canvas.width,
-  height: canvas.height,
-  color: "#444444"
+
+let lane = {
+  width: 60,
+  height: 40,
+  gap: 0.01 * 40,
+  color: "#FFFFFF",
+  countX: canvas.width / 60,
+  countY: Math.floor(canvas.height / 40 - 1)
 };
 
 let explosion = {
   color: "rgba(255, 40, 0, 0.5)",
-  duration: 2 * laneHeight,
+  duration: 2 * lane.height,
   increment: 4,
-  radius: 0.5 * laneHeight
+  radius: 0.5 * lane.height
 };
 
 let meteor = {
   alpha: 0.5,
   duration: 150,
   font: "44px Arial",
-  highestRadius: 1.2 * laneHeight,
-  lowestRadius: 0.8 * laneHeight,
+  highestRadius: 1.2 * lane.height,
+  lowestRadius: 0.8 * lane.height,
   probability: 0.005,
   step: 30
 };
 
 let rocket = {
-  radius: 0.4 * laneHeight,
+  radius: 0.4 * lane.height,
   speed: 20 * pixelsPerFrame
 };
 
 let train = {
   color: "#FF0000",
   duration: 150,
-  height: 0.1 * laneHeight,
-  lanes: Math.floor(lanes / 2),
+  height: 0.1 * lane.height,
+  lanes: Math.floor(lane.countY / 2),
   probability: 0.005,
   warningColor: "#FFD700",
   warningDuration: 50,
@@ -60,34 +56,31 @@ let train = {
 let turtle = {
   color: "#008000",
   maxTurn: 45,
-  radius: 0.4 * laneHeight,
+  radius: 0.4 * lane.height,
   speedIncrement: 0.2,
   speedX: 0,
   speedY: 0,
   speed: (15 + 0.2 * (level - 1)) * pixelsPerFrame,
   touchedTop: false,
   turn: 10 * pixelsPerFrame,
-  x: canvas.width / 2 - 0.4 * laneHeight,
-  y: canvas.height - 0.4 * laneHeight
+  x: canvas.width / 2 - 0.4 * lane.height,
+  y: canvas.height - 0.4 * lane.height
 };
 
 let vehicle = {
-  height: 0.6 * laneHeight,
-  arc: 0.3 * laneHeight,
-  highestArc: 1.2,
-  highestHeight: 1.2,
+  highestArc: 0.36 * lane.height,
+  highestHeight: 0.7 * lane.height,
   highestSpeed: 1.5,
-  highestWidth: 1.2,
+  highestWidth: 1.2 * lane.width,
   longProbability: 0.1,
   longWidthMultiplier: 2,
-  lowestArc: 0.8,
-  lowestHeight: 0.8,
+  lowestArc: 0.24 * lane.height,
+  lowestHeight: 0.5 * lane.height,
   lowestSpeed: 0.5,
-  lowestWidth: 0.8,
+  lowestWidth: 0.8 * lane.width,
   probability: 0.05,
   speedIncrement: 0.5,
-  speed: (5 + 0.5 * (level - 1)) * pixelsPerFrame,
-  width: 1 * lineWidth
+  speed: (5 + 0.5 * (level - 1)) * pixelsPerFrame
 };
 
 let label = {
@@ -104,34 +97,34 @@ let rockets = [];
 let trains = [];
 let vehicles = [];
 
-for (let i = 0; i < lanes - lanes / 2; i++) {
-  if (i !== Math.floor(lanes / 2)) {
+for (let i = 0; i < lane.countY - lane.countY / 2; i++) {
+  if (i !== Math.floor(lane.countY / 2)) {
     continuousLanes.push({
       x: 0,
-      y: 2 * (i + 1) * laneHeight - laneGapHeight / 2,
+      y: 2 * (i + 1) * lane.height - lane.gap / 2,
       width: canvas.width,
-      height: laneGapHeight,
-      color: laneColor
+      height: lane.gap,
+      color: lane.color
     });
   } else {
     continuousLanes.push({
       x: 0,
-      y: (2 * i + 1) * laneHeight - laneGapHeight / 2,
+      y: (2 * i + 1) * lane.height - lane.gap / 2,
       width: canvas.width,
-      height: laneGapHeight,
-      color: laneColor
+      height: lane.gap,
+      color: lane.color
     });
   }
 }
-for (let i = 0; i < Math.floor(lanes / 2); i++) {
-  for (let j = 0; j < lines; j++) {
+for (let i = 0; i < Math.floor(lane.countY / 2); i++) {
+  for (let j = 0; j < lane.countX; j++) {
     if (j % 2 === 0) {
       fragmentedLanes.push({
-        x: j * lineWidth,
-        y: (2 * i + 1) * laneHeight - laneGapHeight / 2,
-        width: lineWidth,
-        height: laneGapHeight,
-        color: laneColor
+        x: j * lane.width,
+        y: (2 * i + 1) * lane.height - lane.gap / 2,
+        width: lane.width,
+        height: lane.gap,
+        color: lane.color
       });
     }
   }
@@ -144,7 +137,6 @@ window.addEventListener("resize", resizeHandler);
 
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  drawRect(background);
   drawLanes(continuousLanes);
   drawLanes(fragmentedLanes);
   drawCircle(turtle.x, turtle.y, turtle.radius, turtle.color);
@@ -321,7 +313,7 @@ function processTurtle() {
   if (!turtle.touchedTop && top < 1) {
     turtle.touchedTop = true;
   }
-  if (turtle.touchedTop && top > lanes * laneHeight) {
+  if (turtle.touchedTop && top > lane.countY * lane.height) {
     level++;
     turtle.touchedTop = false;
     turtle.speed += turtle.speedIncrement * pixelsPerFrame;
@@ -335,7 +327,7 @@ function createMeteors() {
     let radius = Math.floor(meteor.lowestRadius + Math.random() * (meteor.highestRadius - meteor.lowestRadius));
     meteors.push({
       x: Math.floor(Math.random() * (canvas.width - radius)),
-      y: Math.floor(Math.random() * (lanes * laneHeight - radius)),
+      y: Math.floor(Math.random() * (lane.countY * lane.height - radius)),
       radius,
       count: meteor.duration,
       color: "rgba(" + color[0] + ", " + color[1] + ", " + color[2] + ", " + meteor.alpha + ")",
@@ -346,15 +338,15 @@ function createMeteors() {
 
 function createTrains() {
   if (Math.random() < train.probability) {
-    let lane = Math.floor(Math.random() * train.lanes);
+    let l = Math.floor(Math.random() * train.lanes);
     for (let t of trains) {
-      if (t.lane === lane) {
+      if (t.lane === l) {
         return;
       }
     }
     trains.push({
       x: 0,
-      y: 2 * (lane + 1) * laneHeight - train.height / 2,
+      y: 2 * (l + 1) * lane.height - train.height / 2,
       width: train.width,
       height: train.height,
       color: train.warningColor,
@@ -366,8 +358,8 @@ function createTrains() {
 
 function createVehicles() {
   if (Math.random() < vehicle.probability) {
-    let height = vehicle.height * ((vehicle.highestHeight - vehicle.lowestHeight) * Math.random() + vehicle.lowestHeight);
-    let width = vehicle.width * ((vehicle.highestWidth - vehicle.lowestWidth) * Math.random() + vehicle.lowestWidth);
+    let height = vehicle.lowestHeight + Math.random() * (vehicle.highestHeight - vehicle.lowestHeight);
+    let width = vehicle.lowestWidth + Math.random() * (vehicle.highestWidth - vehicle.lowestWidth);
     if (Math.random() < vehicle.longProbability) {
       width *= vehicle.longWidthMultiplier;
     }
@@ -377,23 +369,23 @@ function createVehicles() {
       x = canvas.width;
       direction = -1;
     }
-    let lans = {};
+    let lanes = {};
     for (let v of vehicles) {
       if (rect_and_rect(v.x, v.y, v.width, v.height, x, 0, width, canvas.height)) {
-        lans[v.lane] = true;
+        lanes[v.lane] = true;
       }
     }
-    let lane = Math.floor(Math.random() * lanes);
-    if (lans[lane] === undefined) {
+    let l = Math.floor(Math.random() * lane.countY);
+    if (lanes[l] === undefined) {
       vehicles.push({
         x,
-        y: lane * laneHeight + (laneHeight - height) / 2,
+        y: l * lane.height + (lane.height - height) / 2,
         width,
         height,
         direction,
-        lane,
-        arc: vehicle.arc * ((vehicle.highestArc - vehicle.lowestArc) * Math.random() + vehicle.lowestArc),
-        speed: direction * ((vehicle.highestSpeed - vehicle.lowestSpeed) * Math.random() + vehicle.lowestSpeed),
+        lane: l,
+        arc: vehicle.lowestArc + Math.random() * (vehicle.highestArc - vehicle.lowestArc),
+        speed: direction * (vehicle.lowestSpeed + Math.random() * (vehicle.highestSpeed - vehicle.lowestSpeed)),
         color: generateRandomHexColor()
       });
     }
@@ -503,8 +495,8 @@ function die(type) {
     turtle.speedX = 0;
     turtle.speedY = 0;
     turtle.touchedTop = false;
-    turtle.x = canvas.width / 2 - 0.4 * laneHeight;
-    turtle.y = canvas.height - 0.4 * laneHeight;
+    turtle.x = canvas.width / 2 - 0.4 * lane.height;
+    turtle.y = canvas.height - 0.4 * lane.height;
   }
 }
 
