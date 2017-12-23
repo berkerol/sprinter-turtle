@@ -437,6 +437,11 @@ function removeVehicles() {
     for (let v2 of vehicles) {
       if (v1.lane === v2.lane && v1 !== v2 && rect_and_rect(v1.x, v1.y, v1.width, v1.height, v2.x, v2.y, v2.width, v2.height)) {
         [v1.speed, v2.speed] = [v2.speed, v1.speed];
+        if (v1.x < v2.x) {
+          v1.x = v2.x - v1.width;
+        } else {
+          v2.x = v1.x - v2.width;
+        }
       }
     }
     let d = v1.x + v1.speed * vehicle.speed;
