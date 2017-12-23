@@ -51,17 +51,16 @@ let train = {
 };
 
 let turtle = {
-  color: "#008000",
-  maxTurn: 45,
-  radius: 0.4 * lane.height,
+  x: canvas.width / 2 - 0.19 * lane.width,
+  y: canvas.height - 0.8 * lane.height,
+  width: 0.38 * lane.width,
+  height: 0.8 * lane.height,
+  image: new Image(),
   speedIncrement: 0.2,
   speedX: 0,
   speedY: 0,
   speed: (15 + 0.2 * (level - 1)) * pixelsPerFrame,
-  touchedTop: false,
-  turn: 10 * pixelsPerFrame,
-  x: canvas.width / 2 - 0.4 * lane.height,
-  y: canvas.height - 0.4 * lane.height
+  touchedTop: false
 };
 
 let vehicle = {
@@ -94,6 +93,7 @@ let rockets = [];
 let trains = [];
 let vehicles = [];
 
+turtle.image.src = "turtle.png";
 for (let i = 0; i < lane.countY - lane.countY / 2; i++) {
   if (i !== Math.floor(lane.countY / 2)) {
     continuousLanes.push({
@@ -139,7 +139,7 @@ function drawLanes (lanes, width) {
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.drawImage(backgroundCanvas, 0, 0);
-  drawCircle(turtle.x, turtle.y, turtle.radius, turtle.color);
+  ctx.drawImage(turtle.image, turtle.x, turtle.y, turtle.width, turtle.height);
   for (let e of explosions) {
     drawCircle(e.x, e.y, e.radius + e.count, explosion.color);
   }
@@ -287,29 +287,30 @@ function processTurtle() {
     turtle.speedX /= Math.sqrt(2);
     turtle.speedY /= Math.sqrt(2);
   }
-  let dX = turtle.x + turtle.speedX;
-  let dY = turtle.y + turtle.speedY;
-  if (turtle.y - turtle.radius < 0) {
-    dY = turtle.y + 1;
+  let dX = turtle.speedX;
+  let dY = turtle.speedY;
+  if (turtle.y < 0) {
+    dY = 1;
   }
-  if (turtle.y + turtle.radius > canvas.height) {
-    dY = turtle.y - 1;
+  if (turtle.y + turtle.height > canvas.height) {
+    dY = -1;
   }
-  if (turtle.x - turtle.radius < 0) {
-    dX = turtle.x + 1;
+  if (turtle.x < 0) {
+    dX = 1;
   }
-  if (turtle.x + turtle.radius > canvas.width) {
-    dX = turtle.x - 1;
+  if (turtle.x + turtle.width > canvas.width) {
+    dX = -1;
   }
-  turtle.x = dX;
-  turtle.y = dY;
-  let top = turtle.y - turtle.radius;
-  if (!turtle.touchedTop && top < 1) {
+  turtle.x += dX;
+  turtle.y += dY;
+  if (!turtle.touchedTop && turtle.y < 1) {
     turtle.touchedTop = true;
+    turtle.image.src = "turtle_reverse.png";
   }
-  if (turtle.touchedTop && top > lane.countY * lane.height) {
+  if (turtle.touchedTop && turtle.y > lane.countY * lane.height) {
     level++;
     turtle.touchedTop = false;
+    turtle.image.src = "turtle.png";
     turtle.speed += turtle.speedIncrement * pixelsPerFrame;
     vehicle.speed += vehicle.speedIncrement * pixelsPerFrame;
   }
@@ -399,7 +400,7 @@ function removeMeteors() {
       m.count--;
     } else {
       meteors.splice(i, 1);
-      if (circle_and_circle(m.x, m.y, m.radius, turtle.x, turtle.y, turtle.radius)) {
+      if (rect_and_circle(turtle, m)) {
         die("Meteor");
       }
       addExplosion(m);
@@ -421,7 +422,7 @@ function removeTrains() {
     } else {
       if (t.count < train.duration) {
         t.count++;
-        if (rect_and_circle(t, turtle)) {
+        if (rect_and_rect(t.x, t.y, t.width, t.height, turtle.x, turtle.y, turtle.width, turtle.height)) {
           die("Train");
         }
       } else {
@@ -449,7 +450,7 @@ function removeVehicles() {
       vehicles.splice(i, 1);
     } else {
       v1.x = d;
-      if (rect_and_circle(v1, turtle)) {
+      if (rect_and_rect(v1.x, v1.y, v1.width, v1.height, turtle.x, turtle.y, turtle.width, turtle.height)) {
         die("Vehicle");
       }
     }
@@ -498,8 +499,9 @@ function die(type) {
     turtle.speedX = 0;
     turtle.speedY = 0;
     turtle.touchedTop = false;
-    turtle.x = canvas.width / 2 - 0.4 * lane.height;
-    turtle.y = canvas.height - 0.4 * lane.height;
+    turtle.image.src = "turtle.png";
+    turtle.x = canvas.width / 2 - turtle.width / 2;
+    turtle.y = canvas.height - turtle.height;
   }
 }
 
