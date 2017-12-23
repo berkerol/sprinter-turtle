@@ -500,13 +500,17 @@ function die(type) {
     document.location.reload();
   } else {
     alert("START AGAIN!");
-    turtle.speedX = 0;
-    turtle.speedY = 0;
-    turtle.touchedTop = false;
-    turtle.image.src = "turtle.png";
-    turtle.x = canvas.width / 2 - turtle.width / 2;
-    turtle.y = canvas.height - turtle.height;
+    reset();
   }
+}
+
+function reset() {
+  turtle.speedX = 0;
+  turtle.speedY = 0;
+  turtle.touchedTop = false;
+  turtle.image.src = "turtle.png";
+  turtle.x = canvas.width / 2 - turtle.width / 2;
+  turtle.y = canvas.height - turtle.height;
 }
 
 function keyDownHandler(e) {
@@ -538,6 +542,9 @@ function keyUpHandler(e) {
   }
   if (e.keyCode === 65 || e.keyCode === 68) {
     turtle.speedX = 0;
+  }
+  if (e.keyCode === 82) {
+    reset();
   }
   if (e.keyCode === 38) {
     addRocket(0, -rocket.speed);
