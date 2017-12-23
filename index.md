@@ -8,6 +8,7 @@
 - Launch rockets by pressing _UP, DOWN, LEFT, RIGHT_.
 - Launch rockets to the location of mouse by mouse clicks.
 - Reset the turtle to safe zone by pressing _R_.
+- Clear all meteors, trains and vehicles by pressing _C_.
 - Increase and decrease level by pressing _O_ and _L_.
 
 ## Gameplay & Features

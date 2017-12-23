@@ -400,6 +400,7 @@ function removeMeteors() {
       meteors.splice(i, 1);
       if (rect_and_circle(turtle, m)) {
         die("Meteor");
+        break;
       }
       addExplosion(m);
     }
@@ -422,6 +423,7 @@ function removeTrains() {
         t.count++;
         if (rect_and_rect(t.x, t.y, t.width, t.height, turtle.x, turtle.y, turtle.width, turtle.height)) {
           die("Train");
+          break;
         }
       } else {
         trains.splice(i, 1);
@@ -450,6 +452,7 @@ function removeVehicles() {
       v1.x = d;
       if (rect_and_rect(v1.x, v1.y, v1.width, v1.height, turtle.x, turtle.y, turtle.width, turtle.height)) {
         die("Vehicle");
+        break;
       }
     }
   }
@@ -500,8 +503,15 @@ function die(type) {
     document.location.reload();
   } else {
     alert("START AGAIN!");
+    clear();
     reset();
   }
+}
+
+function clear() {
+  meteors = [];
+  trains = [];
+  vehicles = [];
 }
 
 function reset() {
@@ -542,6 +552,9 @@ function keyUpHandler(e) {
   }
   if (e.keyCode === 65 || e.keyCode === 68) {
     turtle.speedX = 0;
+  }
+  if (e.keyCode === 67) {
+    clear();
   }
   if (e.keyCode === 82) {
     reset();
