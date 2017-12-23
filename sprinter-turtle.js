@@ -308,11 +308,9 @@ function processTurtle() {
     turtle.image.src = "turtle_reverse.png";
   }
   if (turtle.touchedTop && turtle.y > lane.countY * lane.height) {
-    level++;
+    levelUp();
     turtle.touchedTop = false;
     turtle.image.src = "turtle.png";
-    turtle.speed += turtle.speedIncrement * pixelsPerFrame;
-    vehicle.speed += vehicle.speedIncrement * pixelsPerFrame;
   }
 }
 
@@ -489,6 +487,12 @@ function circle_and_circle(x1, y1, r1, x2, y2, r2) {
   return Math.sqrt(dx * dx + dy * dy) < r1 + r2;
 }
 
+function levelUp() {
+  level++;
+  turtle.speed += turtle.speedIncrement * pixelsPerFrame;
+  vehicle.speed += vehicle.speedIncrement * pixelsPerFrame;
+}
+
 function die(type) {
   alert(type + " hit, you died!");
   if (--lives === 0) {
@@ -518,6 +522,23 @@ function keyDownHandler(e) {
   if (e.keyCode === 68) {
     turtle.speedX = turtle.speed;
   }
+  if (e.keyCode === 79) {
+    levelUp();
+  }
+  if (e.keyCode === 76) {
+    level--;
+    turtle.speed -= turtle.speedIncrement * pixelsPerFrame;
+    vehicle.speed -= vehicle.speedIncrement * pixelsPerFrame;
+  }
+}
+
+function keyUpHandler(e) {
+  if (e.keyCode === 87 || e.keyCode === 83) {
+    turtle.speedY = 0;
+  }
+  if (e.keyCode === 65 || e.keyCode === 68) {
+    turtle.speedX = 0;
+  }
   if (e.keyCode === 38) {
     addRocket(0, -rocket.speed);
   }
@@ -529,15 +550,6 @@ function keyDownHandler(e) {
   }
   if (e.keyCode === 39) {
     addRocket(rocket.speed, 0);
-  }
-}
-
-function keyUpHandler(e) {
-  if (e.keyCode === 87 || e.keyCode === 83) {
-    turtle.speedY = 0;
-  }
-  if (e.keyCode === 65 || e.keyCode === 68) {
-    turtle.speedX = 0;
   }
 }
 

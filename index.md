@@ -7,6 +7,7 @@
 - Move the turtle by pressing _W, A, S, D_.
 - Launch rockets by pressing _UP, DOWN, LEFT, RIGHT_.
 - Launch rockets to the location of mouse by mouse clicks.
+- Increase and decrease level by pressing _O_ and _L_.
 
 ## Gameplay & Features
 
