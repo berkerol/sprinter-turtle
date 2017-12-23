@@ -1,5 +1,7 @@
-let canvas = document.getElementById("canvas");
-let ctx = canvas.getContext("2d");
+/* global alert */
+/* global requestAnimationFrame */
+let canvas = document.getElementById('canvas');
+let ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
@@ -12,13 +14,13 @@ let lane = {
   width: 60,
   height: 40,
   gap: 0.01 * 40,
-  color: "#FFFFFF",
+  color: '#FFFFFF',
   countX: canvas.width / 60,
   countY: Math.floor(canvas.height / 40 - 1)
 };
 
 let explosion = {
-  color: "rgba(255, 40, 0, 0.5)",
+  color: 'rgba(255, 40, 0, 0.5)',
   duration: 2 * lane.height,
   increment: 4,
   radius: 0.5 * lane.height
@@ -27,7 +29,7 @@ let explosion = {
 let meteor = {
   alpha: 0.5,
   duration: 150,
-  font: "44px Arial",
+  font: '44px Arial',
   highestRadius: 1.2 * lane.height,
   lowestRadius: 0.8 * lane.height,
   probability: 0.005,
@@ -40,12 +42,12 @@ let rocket = {
 };
 
 let train = {
-  color: "#FF0000",
+  color: '#FF0000',
   duration: 150,
   height: 0.1 * lane.height,
   lanes: Math.floor(lane.countY / 2),
   probability: 0.005,
-  warningColor: "#FFD700",
+  warningColor: '#FFD700',
   warningDuration: 50,
   width: canvas.width
 };
@@ -55,7 +57,7 @@ let turtle = {
   y: canvas.height - 0.8 * lane.height,
   width: 0.38 * lane.width,
   height: 0.8 * lane.height,
-  image: new Image(),
+  image: document.createElement('img'),
   speedIncrement: 0.2,
   speedX: 0,
   speedY: 0,
@@ -80,8 +82,8 @@ let vehicle = {
 };
 
 let label = {
-  font: "24px Arial",
-  color: "#FFFFFF",
+  font: '24px Arial',
+  color: '#FFFFFF',
   margin: 10
 };
 
@@ -93,7 +95,7 @@ let rockets = [];
 let trains = [];
 let vehicles = [];
 
-turtle.image.src = "turtle.png";
+turtle.image.src = 'turtle.png';
 for (let i = 0; i < lane.countY - lane.countY / 2; i++) {
   if (i !== Math.floor(lane.countY / 2)) {
     continuousLanes.push({
@@ -117,18 +119,18 @@ for (let i = 0; i < Math.floor(lane.countY / 2); i++) {
     }
   }
 }
-let backgroundCanvas = document.createElement("canvas");
+let backgroundCanvas = document.createElement('canvas');
 backgroundCanvas.width = canvas.width;
 backgroundCanvas.height = canvas.height;
-let backgroundCtx = backgroundCanvas.getContext("2d");
+let backgroundCtx = backgroundCanvas.getContext('2d');
 backgroundCtx.fillStyle = lane.color;
 drawLanes(continuousLanes, canvas.width);
 drawLanes(discreteLanes, lane.width);
 draw();
-document.addEventListener("keydown", keyDownHandler);
-document.addEventListener("keyup", keyUpHandler);
-document.addEventListener("mousedown", mouseDownHandler);
-window.addEventListener("resize", resizeHandler);
+document.addEventListener('keydown', keyDownHandler);
+document.addEventListener('keyup', keyUpHandler);
+document.addEventListener('mousedown', mouseDownHandler);
+window.addEventListener('resize', resizeHandler);
 
 function drawLanes (lanes, width) {
   for (let l of lanes) {
@@ -136,7 +138,7 @@ function drawLanes (lanes, width) {
   }
 }
 
-function draw() {
+function draw () {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.drawImage(backgroundCanvas, 0, 0);
   ctx.drawImage(turtle.image, turtle.x, turtle.y, turtle.width, turtle.height);
@@ -155,9 +157,9 @@ function draw() {
   for (let v of vehicles) {
     drawVehicle(v);
   }
-  drawLabel(label.font, label.color, "Level: " + level, 10, canvas.height - label.margin);
-  drawLabel(label.font, label.color, "Lives: " + lives, canvas.width - 270, canvas.height - label.margin);
-  drawLabel(label.font, label.color, "Rockets: " + rocketCount, canvas.width - 140, canvas.height - label.margin);
+  drawLabel(label.font, label.color, 'Level: ' + level, 10, canvas.height - label.margin);
+  drawLabel(label.font, label.color, 'Lives: ' + lives, canvas.width - 270, canvas.height - label.margin);
+  drawLabel(label.font, label.color, 'Rockets: ' + rocketCount, canvas.width - 140, canvas.height - label.margin);
   processExplosions();
   processRockets();
   processTurtle();
@@ -170,24 +172,24 @@ function draw() {
   requestAnimationFrame(draw);
 }
 
-function drawCircle(x, y, radius, color) {
+function drawCircle (x, y, radius, color) {
   ctx.beginPath();
   ctx.arc(x, y, radius, 0, 2 * Math.PI);
   fill(color);
 }
 
-function drawMeteor(m) {
+function drawMeteor (m) {
   drawCircle(m.x, m.y, m.radius, m.color);
   drawLabel(meteor.font, m.colorInverted, Math.floor(m.count / meteor.step), m.x - m.radius / 3, m.y + m.radius / 3);
 }
 
-function drawTrain(r) {
+function drawTrain (r) {
   ctx.beginPath();
   ctx.rect(r.x, r.y, r.width, r.height);
   fill(r.color);
 }
 
-function drawVehicle(v) {
+function drawVehicle (v) {
   ctx.beginPath();
   ctx.moveTo(v.x + v.arc, v.y);
   ctx.lineTo(v.x + v.width - v.arc, v.y);
@@ -201,30 +203,30 @@ function drawVehicle(v) {
   fill(v.color);
 }
 
-function drawLabel(font, color, text, x, y) {
+function drawLabel (font, color, text, x, y) {
   ctx.font = font;
   ctx.fillStyle = color;
   ctx.fillText(text, x, y);
 }
 
-function fill(color) {
+function fill (color) {
   ctx.fillStyle = color;
   ctx.fill();
   ctx.closePath();
 }
 
-function addExplosion(o) {
+function addExplosion (o) {
   let hits = 0;
   for (let i = vehicles.length - 1; i >= 0; i--) {
     let v = vehicles[i];
-    if (rect_and_circle(v, o)) {
+    if (rectCircle(v, o)) {
       hits++;
       vehicles.splice(i, 1);
     }
   }
   for (let i = trains.length - 1; i >= 0; i--) {
     let t = trains[i];
-    if (t.count !== 0 && rect_and_circle(t, o)) {
+    if (t.count !== 0 && rectCircle(t, o)) {
       hits++;
       trains.splice(i, 1);
     }
@@ -240,7 +242,7 @@ function addExplosion(o) {
   return hits > 0;
 }
 
-function addRocket(speedX, speedY) {
+function addRocket (speedX, speedY) {
   if (rocketCount > 0) {
     rocketCount--;
     rockets.push({
@@ -254,7 +256,7 @@ function addRocket(speedX, speedY) {
   }
 }
 
-function processExplosions() {
+function processExplosions () {
   for (let i = explosions.length - 1; i >= 0; i--) {
     let e = explosions[i];
     e.count += explosion.increment;
@@ -264,7 +266,7 @@ function processExplosions() {
   }
 }
 
-function processRockets() {
+function processRockets () {
   for (let i = rockets.length - 1; i >= 0; i--) {
     let r = rockets[i];
     if (addExplosion(r)) {
@@ -282,7 +284,7 @@ function processRockets() {
   }
 }
 
-function processTurtle() {
+function processTurtle () {
   if ((turtle.speedX === turtle.speed && turtle.speedY === turtle.speed) || (turtle.speedX === turtle.speed && turtle.speedY === -turtle.speed) || (turtle.speedX === -turtle.speed && turtle.speedY === turtle.speed) || (turtle.speedX === -turtle.speed && turtle.speedY === -turtle.speed)) {
     turtle.speedX /= Math.sqrt(2);
     turtle.speedY /= Math.sqrt(2);
@@ -305,22 +307,22 @@ function processTurtle() {
   turtle.y += dY;
   if (!turtle.touchedTop && turtle.y < 1) {
     turtle.touchedTop = true;
-    turtle.image.src = "turtle_reverse.png";
+    turtle.image.src = 'turtle_reverse.png';
   }
   if (turtle.touchedTop && turtle.y > lane.countY * lane.height) {
     levelUp();
     turtle.touchedTop = false;
-    turtle.image.src = "turtle.png";
+    turtle.image.src = 'turtle.png';
   }
 }
 
-function createMeteors() {
+function createMeteors () {
   if (Math.random() < meteor.probability) {
     let radius = Math.floor(meteor.lowestRadius + Math.random() * (meteor.highestRadius - meteor.lowestRadius));
     let x = Math.floor(radius + Math.random() * (canvas.width - 2 * radius));
     let y = Math.floor(radius + Math.random() * (lane.countY * lane.height - 2 * radius));
     for (let m of meteors) {
-      if (circle_and_circle(m.x, m.y, m.radius, x, y, radius)) {
+      if (circleCircle(m.x, m.y, m.radius, x, y, radius)) {
         return;
       }
     }
@@ -329,14 +331,14 @@ function createMeteors() {
       x,
       y,
       radius,
-      color: "rgba(" + c[0] + ", " + c[1] + ", " + c[2] + ", " + meteor.alpha + ")",
-      colorInverted: "rgba(" + (255 - c[0]) + ", " + (255 - c[1]) + ", " + (255 - c[2]) + ", " + meteor.alpha + ")",
+      color: 'rgba(' + c[0] + ', ' + c[1] + ', ' + c[2] + ', ' + meteor.alpha + ')',
+      colorInverted: 'rgba(' + (255 - c[0]) + ', ' + (255 - c[1]) + ', ' + (255 - c[2]) + ', ' + meteor.alpha + ')',
       count: meteor.duration
     });
   }
 }
 
-function createTrains() {
+function createTrains () {
   if (Math.random() < train.probability) {
     let y = 2 * (Math.floor(Math.random() * train.lanes) + 1) * lane.height - train.height / 2;
     for (let t of trains) {
@@ -356,7 +358,7 @@ function createTrains() {
   }
 }
 
-function createVehicles() {
+function createVehicles () {
   if (Math.random() < vehicle.probability) {
     let height = vehicle.lowestHeight + Math.random() * (vehicle.highestHeight - vehicle.lowestHeight);
     let width = vehicle.lowestWidth + Math.random() * (vehicle.highestWidth - vehicle.lowestWidth);
@@ -373,7 +375,7 @@ function createVehicles() {
     }
     let l = Math.floor(Math.random() * lane.countY);
     for (let v of vehicles) {
-      if (rect_and_rect(v.x, v.y, v.width, v.height, test, l * lane.height, vehicle.longWidthMultiplier * vehicle.highestWidth, lane.height)) {
+      if (rectRect(v.x, v.y, v.width, v.height, test, l * lane.height, vehicle.longWidthMultiplier * vehicle.highestWidth, lane.height)) {
         return;
       }
     }
@@ -391,15 +393,15 @@ function createVehicles() {
   }
 }
 
-function removeMeteors() {
+function removeMeteors () {
   for (let i = meteors.length - 1; i >= 0; i--) {
     let m = meteors[i];
     if (m.count !== 0) {
       m.count--;
     } else {
       meteors.splice(i, 1);
-      if (rect_and_circle(turtle, m)) {
-        die("Meteor");
+      if (rectCircle(turtle, m)) {
+        die('Meteor');
         break;
       }
       addExplosion(m);
@@ -407,7 +409,7 @@ function removeMeteors() {
   }
 }
 
-function removeTrains() {
+function removeTrains () {
   for (let i = trains.length - 1; i >= 0; i--) {
     let t = trains[i];
     if (t.warningCount !== 0) {
@@ -421,8 +423,8 @@ function removeTrains() {
     } else {
       if (t.count < train.duration) {
         t.count++;
-        if (rect_and_rect(t.x, t.y, t.width, t.height, turtle.x, turtle.y, turtle.width, turtle.height)) {
-          die("Train");
+        if (rectRect(t.x, t.y, t.width, t.height, turtle.x, turtle.y, turtle.width, turtle.height)) {
+          die('Train');
           break;
         }
       } else {
@@ -432,11 +434,11 @@ function removeTrains() {
   }
 }
 
-function removeVehicles() {
+function removeVehicles () {
   for (let i = vehicles.length - 1; i >= 0; i--) {
     let v1 = vehicles[i];
     for (let v2 of vehicles) {
-      if (v1.lane === v2.lane && v1 !== v2 && rect_and_rect(v1.x, v1.y, v1.width, v1.height, v2.x, v2.y, v2.width, v2.height)) {
+      if (v1.lane === v2.lane && v1 !== v2 && rectRect(v1.x, v1.y, v1.width, v1.height, v2.x, v2.y, v2.width, v2.height)) {
         [v1.speed, v2.speed] = [v2.speed, v1.speed];
         if (v1.x < v2.x) {
           v1.x = v2.x - v1.width;
@@ -450,27 +452,27 @@ function removeVehicles() {
       vehicles.splice(i, 1);
     } else {
       v1.x = d;
-      if (rect_and_rect(v1.x, v1.y, v1.width, v1.height, turtle.x, turtle.y, turtle.width, turtle.height)) {
-        die("Vehicle");
+      if (rectRect(v1.x, v1.y, v1.width, v1.height, turtle.x, turtle.y, turtle.width, turtle.height)) {
+        die('Vehicle');
         break;
       }
     }
   }
 }
 
-function generateRandomHexColor() {
-  return "#" + Math.floor(Math.random() * 16777215).toString(16);
+function generateRandomHexColor () {
+  return '#' + Math.floor(Math.random() * 16777215).toString(16);
 }
 
-function generateRandomRgbColor() {
+function generateRandomRgbColor () {
   return [Math.floor(Math.random() * 255), Math.floor(Math.random() * 255), Math.floor(Math.random() * 255)];
 }
 
-function rect_and_rect(x1, y1, w1, h1, x2, y2, w2, h2) {
+function rectRect (x1, y1, w1, h1, x2, y2, w2, h2) {
   return x2 < x1 + w1 && x2 + w2 > x1 && y2 < y1 + h1 && y2 + h2 > y1;
 }
 
-function rect_and_circle(r, c) {
+function rectCircle (r, c) {
   let distX = Math.abs(c.x - r.x - r.width / 2);
   let distY = Math.abs(c.y - r.y - r.height / 2);
   if (distX > (r.width / 2 + c.radius) || distY > (r.height / 2 + c.radius)) {
@@ -484,46 +486,46 @@ function rect_and_circle(r, c) {
   return (dx * dx + dy * dy <= (c.radius * c.radius));
 }
 
-function circle_and_circle(x1, y1, r1, x2, y2, r2) {
+function circleCircle (x1, y1, r1, x2, y2, r2) {
   let dx = x1 - x2;
   let dy = y1 - y2;
   return Math.sqrt(dx * dx + dy * dy) < r1 + r2;
 }
 
-function levelUp() {
+function levelUp () {
   level++;
   turtle.speed += turtle.speedIncrement * pixelsPerFrame;
   vehicle.speed += vehicle.speedIncrement * pixelsPerFrame;
 }
 
-function die(type) {
-  alert(type + " hit, you died!");
+function die (type) {
+  alert(type + ' hit, you died!');
   if (--lives === 0) {
-    alert("GAME OVER!");
+    alert('GAME OVER!');
     document.location.reload();
   } else {
-    alert("START AGAIN!");
+    alert('START AGAIN!');
     clear();
     reset();
   }
 }
 
-function clear() {
+function clear () {
   meteors = [];
   trains = [];
   vehicles = [];
 }
 
-function reset() {
+function reset () {
   turtle.speedX = 0;
   turtle.speedY = 0;
   turtle.touchedTop = false;
-  turtle.image.src = "turtle.png";
+  turtle.image.src = 'turtle.png';
   turtle.x = canvas.width / 2 - turtle.width / 2;
   turtle.y = canvas.height - turtle.height;
 }
 
-function keyDownHandler(e) {
+function keyDownHandler (e) {
   if (e.keyCode === 87) {
     turtle.speedY = -turtle.speed;
   }
@@ -546,7 +548,7 @@ function keyDownHandler(e) {
   }
 }
 
-function keyUpHandler(e) {
+function keyUpHandler (e) {
   if (e.keyCode === 87 || e.keyCode === 83) {
     turtle.speedY = 0;
   }
@@ -573,14 +575,14 @@ function keyUpHandler(e) {
   }
 }
 
-function mouseDownHandler(e) {
+function mouseDownHandler (e) {
   let x = e.clientX - canvas.offsetLeft - turtle.x;
   let y = e.clientY - canvas.offsetTop - turtle.y;
   let norm = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
   addRocket(x / norm * rocket.speed, y / norm * rocket.speed);
 }
 
-function resizeHandler() {
+function resizeHandler () {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
 }
