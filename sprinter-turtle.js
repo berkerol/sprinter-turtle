@@ -246,10 +246,10 @@ function addRocket(speedX, speedY) {
     rockets.push({
       x: turtle.x,
       y: turtle.y,
-      speedX,
-      speedY,
       radius: rocket.radius,
-      color: generateRandomHexColor()
+      color: generateRandomHexColor(),
+      speedX,
+      speedY
     });
   }
 }
@@ -317,30 +317,37 @@ function processTurtle() {
 
 function createMeteors() {
   if (Math.random() < meteor.probability) {
-    let c = generateRandomRgbColor();
     let radius = Math.floor(meteor.lowestRadius + Math.random() * (meteor.highestRadius - meteor.lowestRadius));
+    let x = Math.floor(radius + Math.random() * (canvas.width - 2 * radius));
+    let y = Math.floor(radius + Math.random() * (lane.countY * lane.height - 2 * radius));
+    for (let m of meteors) {
+      if (circle_and_circle(m.x, m.y, m.radius, x, y, radius)) {
+        return;
+      }
+    }
+    let c = generateRandomRgbColor();
     meteors.push({
-      x: Math.floor(Math.random() * (canvas.width - radius)),
-      y: Math.floor(Math.random() * (lane.countY * lane.height - radius)),
+      x,
+      y,
       radius,
-      count: meteor.duration,
       color: "rgba(" + c[0] + ", " + c[1] + ", " + c[2] + ", " + meteor.alpha + ")",
-      colorInverted: "rgba(" + (255 - c[0]) + ", " + (255 - c[1]) + ", " + (255 - c[2]) + ", " + meteor.alpha + ")"
+      colorInverted: "rgba(" + (255 - c[0]) + ", " + (255 - c[1]) + ", " + (255 - c[2]) + ", " + meteor.alpha + ")",
+      count: meteor.duration
     });
   }
 }
 
 function createTrains() {
   if (Math.random() < train.probability) {
-    let l = Math.floor(Math.random() * train.lanes);
+    let y = 2 * (Math.floor(Math.random() * train.lanes) + 1) * lane.height - train.height / 2;
     for (let t of trains) {
-      if (t.lane === l) {
+      if (t.y === y) {
         return;
       }
     }
     trains.push({
       x: 0,
-      y: 2 * (l + 1) * lane.height - train.height / 2,
+      y,
       width: train.width,
       height: train.height,
       color: train.warningColor,
@@ -359,30 +366,29 @@ function createVehicles() {
     }
     let x = -width;
     let direction = 1;
+    let test = -vehicle.longWidthMultiplier * vehicle.highestWidth;
     if (Math.random() < 0.5) {
       x = canvas.width;
       direction = -1;
-    }
-    let lanes = {};
-    for (let v of vehicles) {
-      if (rect_and_rect(v.x, v.y, v.width, v.height, x, 0, width, canvas.height)) {
-        lanes[v.lane] = true;
-      }
+      test = canvas.width;
     }
     let l = Math.floor(Math.random() * lane.countY);
-    if (lanes[l] === undefined) {
-      vehicles.push({
-        x,
-        y: l * lane.height + (lane.height - height) / 2,
-        width,
-        height,
-        direction,
-        lane: l,
-        arc: vehicle.lowestArc + Math.random() * (vehicle.highestArc - vehicle.lowestArc),
-        speed: direction * (vehicle.lowestSpeed + Math.random() * (vehicle.highestSpeed - vehicle.lowestSpeed)),
-        color: generateRandomHexColor()
-      });
+    for (let v of vehicles) {
+      if (rect_and_rect(v.x, v.y, v.width, v.height, test, l * lane.height, vehicle.longWidthMultiplier * vehicle.highestWidth, lane.height)) {
+        return;
+      }
     }
+    vehicles.push({
+      x,
+      y: l * lane.height + (lane.height - height) / 2,
+      width,
+      height,
+      arc: vehicle.lowestArc + Math.random() * (vehicle.highestArc - vehicle.lowestArc),
+      color: generateRandomHexColor(),
+      direction,
+      lane: l,
+      speed: direction * (vehicle.lowestSpeed + Math.random() * (vehicle.highestSpeed - vehicle.lowestSpeed))
+    });
   }
 }
 
@@ -393,7 +399,7 @@ function removeMeteors() {
       m.count--;
     } else {
       meteors.splice(i, 1);
-      if (circle_and_circle(m, turtle)) {
+      if (circle_and_circle(m.x, m.y, m.radius, turtle.x, turtle.y, turtle.radius)) {
         die("Meteor");
       }
       addExplosion(m);
@@ -429,10 +435,8 @@ function removeVehicles() {
   for (let i = vehicles.length - 1; i >= 0; i--) {
     let v1 = vehicles[i];
     for (let v2 of vehicles) {
-      if (v1 !== v2 && rect_and_rect(v1.x, v1.y, v1.width, v1.height, v2.x, v2.y, v2.width, v2.height)) {
-        let s = v1.speed;
-        v1.speed = v2.speed;
-        v2.speed = s;
+      if (v1.lane === v2.lane && v1 !== v2 && rect_and_rect(v1.x, v1.y, v1.width, v1.height, v2.x, v2.y, v2.width, v2.height)) {
+        [v1.speed, v2.speed] = [v2.speed, v1.speed];
       }
     }
     let d = v1.x + v1.speed * vehicle.speed;
@@ -473,10 +477,10 @@ function rect_and_circle(r, c) {
   return (dx * dx + dy * dy <= (c.radius * c.radius));
 }
 
-function circle_and_circle(c1, c2) {
-  let dx = c1.x - c2.x;
-  let dy = c1.y - c2.y;
-  return Math.sqrt(dx * dx + dy * dy) < c1.radius + c2.radius;
+function circle_and_circle(x1, y1, r1, x2, y2, r2) {
+  let dx = x1 - x2;
+  let dy = y1 - y2;
+  return Math.sqrt(dx * dx + dy * dy) < r1 + r2;
 }
 
 function die(type) {
