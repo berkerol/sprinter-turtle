@@ -20,8 +20,8 @@ let lane = {
 };
 
 let explosion = {
-  color: 'rgba(255, 40, 0, 0.5)',
-  duration: 2 * lane.height,
+  color: 'rgba(255, 55, 0, 0.5)',
+  duration: 80,
   increment: 4,
   radius: 0.5 * lane.height
 };
@@ -37,7 +37,11 @@ let meteor = {
 };
 
 let rocket = {
-  radius: 0.4 * lane.height,
+  width: lane.width / 2,
+  lineWidth: 5,
+  lineCap: 'round',
+  shadowBlur: 10,
+  color: '#FF0000',
   speed: 20 * pixelsPerFrame
 };
 
@@ -148,9 +152,16 @@ function draw () {
   for (let m of meteors) {
     drawMeteor(m);
   }
+  ctx.save();
+  ctx.lineWidth = rocket.lineWidth;
+  ctx.lineCap = rocket.lineCap;
+  ctx.shadowBlur = rocket.shadowBlur;
+  ctx.shadowColor = rocket.color;
+  ctx.strokeStyle = rocket.color;
   for (let r of rockets) {
-    drawCircle(r.x, r.y, r.radius, r.color);
+    drawRocket(r);
   }
+  ctx.restore();
   for (let t of trains) {
     drawTrain(t);
   }
@@ -183,10 +194,18 @@ function drawMeteor (m) {
   drawLabel(meteor.font, m.colorInverted, Math.floor(m.count / meteor.step), m.x - m.radius / 3, m.y + m.radius / 3);
 }
 
-function drawTrain (r) {
+function drawRocket (r) {
   ctx.beginPath();
-  ctx.rect(r.x, r.y, r.width, r.height);
-  fill(r.color);
+  ctx.moveTo(r.x, r.y);
+  ctx.lineTo(r.x + r.speedX / rocket.speed * rocket.width, r.y + r.speedY / rocket.speed * rocket.width);
+  ctx.stroke();
+  ctx.closePath();
+}
+
+function drawTrain (t) {
+  ctx.beginPath();
+  ctx.rect(t.x, t.y, train.width, train.height);
+  fill(t.color);
 }
 
 function drawVehicle (v) {
@@ -215,41 +234,21 @@ function fill (color) {
   ctx.closePath();
 }
 
-function addExplosion (o) {
-  let hits = 0;
-  for (let i = vehicles.length - 1; i >= 0; i--) {
-    let v = vehicles[i];
-    if (rectCircle(v, o)) {
-      hits++;
-      vehicles.splice(i, 1);
-    }
-  }
-  for (let i = trains.length - 1; i >= 0; i--) {
-    let t = trains[i];
-    if (t.count !== 0 && rectCircle(t, o)) {
-      hits++;
-      trains.splice(i, 1);
-    }
-  }
-  if (hits > 0) {
-    explosions.push({
-      x: o.x,
-      y: o.y,
-      radius: explosion.radius * hits,
-      count: 1
-    });
-  }
-  return hits > 0;
+function addExplosion (x, y, hits) {
+  explosions.push({
+    x,
+    y,
+    radius: explosion.radius * hits,
+    count: 1
+  });
 }
 
 function addRocket (speedX, speedY) {
   if (rocketCount > 0) {
     rocketCount--;
     rockets.push({
-      x: turtle.x,
-      y: turtle.y,
-      radius: rocket.radius,
-      color: generateRandomHexColor(),
+      x: turtle.x + turtle.width / 2,
+      y: turtle.y + turtle.height / 2,
       speedX,
       speedY
     });
@@ -269,16 +268,30 @@ function processExplosions () {
 function processRockets () {
   for (let i = rockets.length - 1; i >= 0; i--) {
     let r = rockets[i];
-    if (addExplosion(r)) {
+    let hits = 0;
+    for (let j = trains.length - 1; j >= 0; j--) {
+      let t = trains[j];
+      if (t.count !== 0 && r.x >= t.x && r.x <= t.x + train.width && r.y >= t.y && r.y <= t.y + train.height) {
+        hits++;
+        trains.splice(j, 1);
+      }
+    }
+    for (let j = vehicles.length - 1; j >= 0; j--) {
+      let v = vehicles[j];
+      if (r.x >= v.x && r.x <= v.x + v.width && r.y >= v.y && r.y <= v.y + v.height) {
+        hits++;
+        vehicles.splice(j, 1);
+      }
+    }
+    if (hits > 0) {
       rockets.splice(i, 1);
+      addExplosion(r.x, r.y, hits);
     } else {
-      let dX = r.x + r.speedX;
-      let dY = r.y + r.speedY;
-      if (dX < 0 || dX > canvas.width || dY < 0 || dY > canvas.height) {
+      if (r.x < r.radius || r.x > canvas.width - r.radius || r.y < r.radius || r.y > canvas.height - r.radius) {
         rockets.splice(i, 1);
       } else {
-        r.x = dX;
-        r.y = dY;
+        r.x += r.speedX;
+        r.y += r.speedY;
       }
     }
   }
@@ -399,12 +412,29 @@ function removeMeteors () {
     if (m.count !== 0) {
       m.count--;
     } else {
+      let hits = 0;
+      for (let j = trains.length - 1; j >= 0; j--) {
+        let t = trains[j];
+        if (t.count !== 0 && rectCircle(t, m)) {
+          hits++;
+          trains.splice(j, 1);
+        }
+      }
+      for (let j = vehicles.length - 1; j >= 0; j--) {
+        let v = vehicles[j];
+        if (rectCircle(v, m)) {
+          hits++;
+          vehicles.splice(j, 1);
+        }
+      }
+      if (hits > 0) {
+        addExplosion(m.x, m.y, hits);
+      }
       meteors.splice(i, 1);
       if (rectCircle(turtle, m)) {
         die('Meteor');
         break;
       }
-      addExplosion(m);
     }
   }
 }
