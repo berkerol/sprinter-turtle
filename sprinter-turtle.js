@@ -1,5 +1,3 @@
-/* global alert */
-/* global requestAnimationFrame */
 let canvas = document.getElementById('canvas');
 let ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
@@ -180,7 +178,7 @@ function draw () {
   removeMeteors();
   removeTrains();
   removeVehicles();
-  requestAnimationFrame(draw);
+  window.requestAnimationFrame(draw);
 }
 
 function drawCircle (x, y, radius, color) {
@@ -529,12 +527,12 @@ function levelUp () {
 }
 
 function die (type) {
-  alert(type + ' hit, you died!');
+  window.alert(type + ' hit, you died!');
   if (--lives === 0) {
-    alert('GAME OVER!');
+    window.alert('GAME OVER!');
     document.location.reload();
   } else {
-    alert('START AGAIN!');
+    window.alert('START AGAIN!');
     clear();
     reset();
   }
