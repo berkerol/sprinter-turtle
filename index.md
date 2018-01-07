@@ -1,6 +1,8 @@
 # Sprinter Turtle
 
-2D top down road crossing game. Also works as a beautiful simulation when probabilities are increased. Written in ES6\. You can play it [here](https://berkerol.github.io/sprinter-turtle/sprinter-turtle.html).
+2D top down road crossing game. Also works as a beautiful simulation when probabilities are increased. Written in [ES6](https://www.ecma-international.org/ecma-262/6.0/).
+
+[![button](play.png)](https://berkerol.github.io/sprinter-turtle/sprinter-turtle.html)
 
 ## Controls
 
