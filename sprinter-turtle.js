@@ -48,10 +48,10 @@ let train = {
   duration: 150,
   height: 0.1 * lane.height,
   lanes: Math.floor(lane.countY / 2),
-  probability: 0.005,
+  minWidth: 4 * lane.width,
+  probability: 0.01,
   warningColor: '#FFD700',
-  warningDuration: 50,
-  width: canvas.width
+  warningDuration: 50
 };
 
 let turtle = {
@@ -202,7 +202,7 @@ function drawRocket (r) {
 
 function drawTrain (t) {
   ctx.fillStyle = t.warningCount !== 0 ? train.warningColor : train.color;
-  ctx.fillRect(t.x, t.y, train.width, train.height);
+  ctx.fillRect(t.x, t.y, t.width, train.height);
 }
 
 function drawVehicle (v) {
@@ -268,7 +268,7 @@ function processRockets () {
     let hits = 0;
     for (let j = trains.length - 1; j >= 0; j--) {
       let t = trains[j];
-      if (t.count !== 0 && r.x >= t.x && r.x <= t.x + train.width && r.y >= t.y && r.y <= t.y + train.height) {
+      if (t.count !== 0 && r.x >= t.x && r.x <= t.x + t.width && r.y >= t.y && r.y <= t.y + train.height) {
         hits++;
         trains.splice(j, 1);
       }
@@ -350,15 +350,19 @@ function createMeteors () {
 
 function createTrains () {
   if (Math.random() < train.probability) {
-    let y = 2 * (Math.floor(Math.random() * train.lanes) + 1) * lane.height - train.height / 2;
+    let x = Math.floor(Math.random() * (canvas.width - train.minWidth));
+    let y = 2 * Math.ceil(Math.random() * train.lanes) * lane.height - train.height / 2;
+    let width = train.minWidth + Math.floor(Math.random() * (canvas.width - train.minWidth - x));
     for (let t of trains) {
-      if (t.y === y) {
+      if (t.y === y && ((t.x >= x && t.x <= x + width) || (t.x + t.width >= x && t.x + t.width <= x + width) ||
+          (x >= t.x && x <= t.x + t.width) || (x + width >= t.x && x + width <= t.x + t.width))) {
         return;
       }
     }
     trains.push({
-      x: 0,
+      x,
       y,
+      width,
       count: 0,
       warningCount: 1
     });
@@ -446,7 +450,7 @@ function removeTrains () {
     } else {
       if (t.count < train.duration) {
         t.count++;
-        if (rectRect(t.x, t.y, train.width, train.height, turtle.x, turtle.y, turtle.width, turtle.height)) {
+        if (rectRect(t.x, t.y, t.width, train.height, turtle.x, turtle.y, turtle.width, turtle.height)) {
           die('Train');
           break;
         }
