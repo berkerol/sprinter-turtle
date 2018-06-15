@@ -201,9 +201,8 @@ function drawRocket (r) {
 }
 
 function drawTrain (t) {
-  ctx.beginPath();
-  ctx.rect(t.x, t.y, train.width, train.height);
-  fill(t.color);
+  ctx.fillStyle = t.warningCount !== 0 ? train.warningColor : train.color;
+  ctx.fillRect(t.x, t.y, train.width, train.height);
 }
 
 function drawVehicle (v) {
@@ -360,9 +359,6 @@ function createTrains () {
     trains.push({
       x: 0,
       y,
-      width: train.width,
-      height: train.height,
-      color: train.warningColor,
       count: 0,
       warningCount: 1
     });
@@ -446,12 +442,11 @@ function removeTrains () {
       } else {
         t.count = 1;
         t.warningCount = 0;
-        t.color = train.color;
       }
     } else {
       if (t.count < train.duration) {
         t.count++;
-        if (rectRect(t.x, t.y, t.width, t.height, turtle.x, turtle.y, turtle.width, turtle.height)) {
+        if (rectRect(t.x, t.y, train.width, train.height, turtle.x, turtle.y, turtle.width, turtle.height)) {
           die('Train');
           break;
         }
