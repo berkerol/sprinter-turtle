@@ -9,12 +9,12 @@ let rocketCount = 10;
 let pixelsPerFrame = 0.6;
 
 let lane = {
-  width: 60,
-  height: 40,
-  gap: 0.01 * 40,
+  width: 90,
+  height: 60,
+  gap: 1,
   color: '#FFFFFF',
-  countX: canvas.width / 60,
-  countY: Math.floor(canvas.height / 40 - 1)
+  countX: canvas.width / 90,
+  countY: Math.floor(canvas.height / 60 - 1)
 };
 
 let explosion = {
@@ -73,7 +73,7 @@ let vehicle = {
   highestSpeed: 1.5,
   highestWidth: 1.2 * lane.width,
   longProbability: 0.1,
-  longWidthMultiplier: 2,
+  longWidthMultiplier: 3,
   lowestArc: 0.24 * lane.height,
   lowestHeight: 0.5 * lane.height,
   lowestSpeed: 0.5,
@@ -189,7 +189,7 @@ function drawCircle (x, y, radius, color) {
 
 function drawMeteor (m) {
   drawCircle(m.x, m.y, m.radius, m.color);
-  drawLabel(meteor.font, m.colorInverted, Math.floor(m.count / meteor.step), m.x - m.radius / 3, m.y + m.radius / 3);
+  drawLabel(meteor.font, m.colorInverted, Math.ceil(m.count / meteor.step), m.x - m.radius / 4, m.y + m.radius / 4);
 }
 
 function drawRocket (r) {
