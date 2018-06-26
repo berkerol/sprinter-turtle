@@ -1,4 +1,5 @@
 /* global performance */
+/* global FPSMeter */
 let canvas = document.getElementById('canvas');
 let ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
@@ -8,6 +9,14 @@ const getTime = typeof performance === 'function' ? performance.now : Date.now;
 const FRAME_DURATION = 1000 / 58;
 let then = getTime();
 let acc = 0;
+let meter = new FPSMeter({
+  left: canvas.width - 140 + 'px',
+  top: 'auto',
+  bottom: '12px',
+  theme: 'transparent',
+  heat: 1,
+  graph: 1
+});
 
 let level = 1;
 let lives = 10;
@@ -161,6 +170,7 @@ function draw () {
   } else {
     ms = 0;
   }
+  meter.tick();
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.drawImage(backgroundCanvas, 0, 0);
   ctx.drawImage(turtle.image, turtle.x, turtle.y, turtle.width, turtle.height);
@@ -187,8 +197,8 @@ function draw () {
     drawVehicle(v);
   }
   drawLabel(label.font, label.color, 'Level: ' + level, 10, canvas.height - label.margin);
-  drawLabel(label.font, label.color, 'Lives: ' + lives, canvas.width - 270, canvas.height - label.margin);
-  drawLabel(label.font, label.color, 'Rockets: ' + rocketCount, canvas.width - 140, canvas.height - label.margin);
+  drawLabel(label.font, label.color, 'Lives: ' + lives, 130, canvas.height - label.margin);
+  drawLabel(label.font, label.color, 'Rockets: ' + rocketCount, canvas.width - 300, canvas.height - label.margin);
   processExplosions(ms);
   processRockets(frames);
   processTurtle(frames);
