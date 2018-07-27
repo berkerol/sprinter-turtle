@@ -2,7 +2,7 @@
 
 2D top down road crossing game. It may also work as a beautiful simulation when probabilities are increased.
 
-[![button](play.png)](https://berkerol.github.io/sprinter-turtle/sprinter-turtle.html)
+[![button](play.png)](sprinter-turtle.html)
 
 ## Controls
 
