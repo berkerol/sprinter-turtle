@@ -635,7 +635,7 @@ function keyUpHandler (e) {
 function mouseDownHandler (e) {
   let x = e.clientX - canvas.offsetLeft - turtle.x;
   let y = e.clientY - canvas.offsetTop - turtle.y;
-  let norm = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+  let norm = Math.sqrt(x ** 2 + y ** 2);
   addRocket(x / norm * rocket.speed, y / norm * rocket.speed);
 }
 
