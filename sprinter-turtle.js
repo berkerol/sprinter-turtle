@@ -85,19 +85,14 @@ let turtle = {
 };
 
 let vehicle = {
-  highestArc: 0.36 * lane.height,
-  highestHeight: 0.7 * lane.height,
+  height: 0.6 * lane.height,
   highestSpeed: 1.5,
-  highestWidth: 1.2 * lane.width,
-  longProbability: 0.1,
-  longWidthMultiplier: 3,
-  lowestArc: 0.24 * lane.height,
-  lowestHeight: 0.5 * lane.height,
   lowestSpeed: 0.5,
-  lowestWidth: 0.8 * lane.width,
   probability: 0.05,
   speedIncrement: 0.3,
-  speed: 3 + 0.3 * (level - 1)
+  speed: 3 + 0.3 * (level - 1),
+  total: 5,
+  width: 0.75 * lane.width
 };
 
 let label = {
@@ -114,7 +109,7 @@ let rockets = [];
 let trains = [];
 let vehicles = [];
 
-turtle.image.src = 'turtle.png';
+turtle.image.src = 'images/turtle.png';
 for (let i = 0; i < lane.countY - lane.countY / 2; i++) {
   if (i !== Math.floor(lane.countY / 2)) {
     continuousLanes.push({
@@ -192,7 +187,7 @@ function draw () {
     drawTrain(t);
   }
   for (let v of vehicles) {
-    drawVehicle(v);
+    ctx.drawImage(v.image, v.x, v.y, vehicle.width, vehicle.height);
   }
   for (let m of meteors) {
     drawMeteor(m);
@@ -234,20 +229,6 @@ function drawRocket (r) {
 function drawTrain (t) {
   ctx.fillStyle = t.warningCount !== 0 ? train.warningColor : train.color;
   ctx.fillRect(t.x, t.y, t.width, train.height);
-}
-
-function drawVehicle (v) {
-  ctx.beginPath();
-  ctx.moveTo(v.x + v.arc, v.y);
-  ctx.lineTo(v.x + v.width - v.arc, v.y);
-  ctx.quadraticCurveTo(v.x + v.width, v.y, v.x + v.width, v.y + v.arc);
-  ctx.lineTo(v.x + v.width, v.y + v.height - v.arc);
-  ctx.quadraticCurveTo(v.x + v.width, v.y + v.height, v.x + v.width - v.arc, v.y + v.height);
-  ctx.lineTo(v.x + v.arc, v.y + v.height);
-  ctx.quadraticCurveTo(v.x, v.y + v.height, v.x, v.y + v.height - v.arc);
-  ctx.lineTo(v.x, v.y + v.arc);
-  ctx.quadraticCurveTo(v.x, v.y, v.x + v.arc, v.y);
-  fill(v.color);
 }
 
 function drawLabel (font, color, text, x, y) {
@@ -306,7 +287,7 @@ function processRockets (frames) {
     }
     for (let j = vehicles.length - 1; j >= 0; j--) {
       let v = vehicles[j];
-      if (r.x >= v.x && r.x <= v.x + v.width && r.y >= v.y && r.y <= v.y + v.height) {
+      if (r.x >= v.x && r.x <= v.x + vehicle.width && r.y >= v.y && r.y <= v.y + vehicle.height) {
         hits++;
         vehicles.splice(j, 1);
       }
@@ -348,12 +329,12 @@ function processTurtle (frames) {
   turtle.y += dY;
   if (!turtle.touchedTop && turtle.y < 1) {
     turtle.touchedTop = true;
-    turtle.image.src = 'turtle_reverse.png';
+    turtle.image.src = 'images/turtle_reverse.png';
   }
   if (turtle.touchedTop && turtle.y > lane.countY * lane.height) {
     levelUp();
     turtle.touchedTop = false;
-    turtle.image.src = 'turtle.png';
+    turtle.image.src = 'images/turtle.png';
   }
 }
 
@@ -399,36 +380,29 @@ function createTrains () {
 
 function createVehicles () {
   if (Math.random() < vehicle.probability) {
-    let height = vehicle.lowestHeight + Math.random() * (vehicle.highestHeight - vehicle.lowestHeight);
-    let width = vehicle.lowestWidth + Math.random() * (vehicle.highestWidth - vehicle.lowestWidth);
-    if (Math.random() < vehicle.longProbability) {
-      width *= vehicle.longWidthMultiplier;
-    }
-    let x = -width;
+    let x = -vehicle.width;
     let direction = 1;
-    let test = -vehicle.longWidthMultiplier * vehicle.highestWidth;
+    let image = '.svg';
     let l = Math.floor(Math.random() * lane.countY);
     if (l % 2 === 0) {
       x = canvas.width;
       direction = -1;
-      test = canvas.width;
+      image = '_reverse.svg';
     }
     for (let v of vehicles) {
-      if (rectRect(v.x, v.y, v.width, v.height, test, l * lane.height, vehicle.longWidthMultiplier * vehicle.highestWidth, lane.height)) {
+      if (rectRect(v.x, v.y, vehicle.width, vehicle.height, x, l * lane.height, lane.width, lane.height)) {
         return;
       }
     }
     vehicles.push({
       x,
-      y: l * lane.height + (lane.height - height) / 2,
-      width,
-      height,
-      arc: vehicle.lowestArc + Math.random() * (vehicle.highestArc - vehicle.lowestArc),
-      color: generateRandomHexColor(),
+      y: l * lane.height + (lane.height - vehicle.height) / 2,
+      image: document.createElement('img'),
       direction,
       lane: l,
       speed: direction * (vehicle.lowestSpeed + Math.random() * (vehicle.highestSpeed - vehicle.lowestSpeed))
     });
+    vehicles[vehicles.length - 1].image.src = 'images/' + Math.floor(Math.random() * vehicle.total) + image;
   }
 }
 
@@ -448,7 +422,7 @@ function removeMeteors (ms) {
       }
       for (let j = vehicles.length - 1; j >= 0; j--) {
         let v = vehicles[j];
-        if (rectCircle(v, v.width, v.height, m)) {
+        if (rectCircle(v, vehicle.width, vehicle.height, m)) {
           hits++;
           vehicles.splice(j, 1);
         }
@@ -493,30 +467,25 @@ function removeVehicles (frames) {
   for (let i = vehicles.length - 1; i >= 0; i--) {
     let v1 = vehicles[i];
     for (let v2 of vehicles) {
-      if (v1.lane === v2.lane && v1 !== v2 && rectRect(v1.x, v1.y, v1.width, v1.height, v2.x, v2.y, v2.width, v2.height)) {
+      if (v1.lane === v2.lane && v1 !== v2 && rectRect(v1.x, v1.y, vehicle.width, vehicle.height, v2.x, v2.y, vehicle.width, vehicle.height)) {
         [v1.speed, v2.speed] = [v2.speed, v1.speed];
         if (v1.x < v2.x) {
-          v1.x = v2.x - v1.width;
+          v1.x = v2.x - vehicle.width;
         } else {
-          v2.x = v1.x - v2.width;
+          v2.x = v1.x - vehicle.width;
         }
       }
     }
-    let d = v1.x + v1.speed * vehicle.speed * frames;
-    if (d < -v1.width || d > canvas.width) {
+    v1.x += v1.speed * vehicle.speed * frames;
+    if (v1.x < -v1.width || v1.x > canvas.width) {
       vehicles.splice(i, 1);
     } else {
-      v1.x = d;
-      if (rectRect(v1.x, v1.y, v1.width, v1.height, turtle.x, turtle.y, turtle.width, turtle.height)) {
+      if (rectRect(v1.x, v1.y, vehicle.width, vehicle.height, turtle.x, turtle.y, turtle.width, turtle.height)) {
         die('Vehicle');
         break;
       }
     }
   }
-}
-
-function generateRandomHexColor () {
-  return '#' + Math.floor(Math.random() * 16777215).toString(16);
 }
 
 function rectRect (x1, y1, w1, h1, x2, y2, w2, h2) {
@@ -571,7 +540,7 @@ function reset () {
   turtle.speedX = 0;
   turtle.speedY = 0;
   turtle.touchedTop = false;
-  turtle.image.src = 'turtle.png';
+  turtle.image.src = 'images/turtle.png';
   turtle.x = canvas.width / 2 - turtle.width / 2;
   turtle.y = canvas.height - turtle.height;
 }

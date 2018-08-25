@@ -36,14 +36,11 @@
 
   - Vehicle
 
-    - They appear in random sizes and random positions from time to time.
-
-      - Each of them have different width, height, arc and speed.
-      - They can be spawned in any lane and in the direction of lane.
-      - They are opaque and have random colors.
-
+    - They appear randomly on lanes and with random speeds.
+    - They are opaque and have random colors.
     - They block the movements of the turtle. (If turtle touches them, it dies.)
     - They can be exploded by meteors and rockets and creates explosions.
+    - They always go towards left on upper lane and towards right on lower lane.
 
   - Train
 
