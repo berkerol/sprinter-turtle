@@ -407,12 +407,12 @@ function createVehicles () {
     let x = -width;
     let direction = 1;
     let test = -vehicle.longWidthMultiplier * vehicle.highestWidth;
-    if (Math.random() < 0.5) {
+    let l = Math.floor(Math.random() * lane.countY);
+    if (l % 2 === 0) {
       x = canvas.width;
       direction = -1;
       test = canvas.width;
     }
-    let l = Math.floor(Math.random() * lane.countY);
     for (let v of vehicles) {
       if (rectRect(v.x, v.y, v.width, v.height, test, l * lane.height, vehicle.longWidthMultiplier * vehicle.highestWidth, lane.height)) {
         return;

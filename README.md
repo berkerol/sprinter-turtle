@@ -39,7 +39,7 @@
     - They appear in random sizes and random positions from time to time.
 
       - Each of them have different width, height, arc and speed.
-      - They can be spawned in any lane in any direction.
+      - They can be spawned in any lane and in the direction of lane.
       - They are opaque and have random colors.
 
     - They block the movements of the turtle. (If turtle touches them, it dies.)
