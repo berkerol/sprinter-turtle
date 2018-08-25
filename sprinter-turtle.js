@@ -177,9 +177,6 @@ function draw () {
   for (let e of explosions) {
     drawCircle(e.x, e.y, e.radius + e.count / explosion.step, explosion.color);
   }
-  for (let m of meteors) {
-    drawMeteor(m);
-  }
   ctx.save();
   ctx.lineWidth = rocket.lineWidth;
   ctx.lineCap = rocket.lineCap;
@@ -195,6 +192,9 @@ function draw () {
   }
   for (let v of vehicles) {
     drawVehicle(v);
+  }
+  for (let m of meteors) {
+    drawMeteor(m);
   }
   drawLabel(label.font, label.color, 'Level: ' + level, 10, canvas.height - label.margin);
   drawLabel(label.font, label.color, 'Lives: ' + lives, 130, canvas.height - label.margin);
