@@ -40,7 +40,8 @@ let explosion = {
 };
 
 let meteor = {
-  alpha: 0.5,
+  color: 'rgba(200, 200, 200, 0.5)',
+  textColor: 'rgba(25, 25, 25, 0.5)',
   font: '44px Arial',
   highestDuration: 4000,
   highestRadius: 1.2 * lane.height,
@@ -218,8 +219,8 @@ function drawCircle (x, y, radius, color) {
 }
 
 function drawMeteor (m) {
-  drawCircle(m.x, m.y, m.radius, m.color);
-  drawLabel(meteor.font, m.colorInverted, Math.ceil(m.count / meteor.step), m.x - m.radius / 4, m.y + m.radius / 4);
+  drawCircle(m.x, m.y, m.radius, meteor.color);
+  drawLabel(meteor.font, meteor.textColor, Math.ceil(m.count / meteor.step), m.x - m.radius / 4, m.y + m.radius / 4);
 }
 
 function drawRocket (r) {
@@ -366,13 +367,10 @@ function createMeteors () {
         return;
       }
     }
-    let c = generateRandomRgbColor();
     meteors.push({
       x,
       y,
       radius,
-      color: 'rgba(' + c[0] + ', ' + c[1] + ', ' + c[2] + ', ' + meteor.alpha + ')',
-      colorInverted: 'rgba(' + (255 - c[0]) + ', ' + (255 - c[1]) + ', ' + (255 - c[2]) + ', ' + meteor.alpha + ')',
       count: Math.floor(meteor.lowestDuration + Math.random() * (meteor.highestDuration - meteor.lowestDuration))
     });
   }
@@ -519,10 +517,6 @@ function removeVehicles (frames) {
 
 function generateRandomHexColor () {
   return '#' + Math.floor(Math.random() * 16777215).toString(16);
-}
-
-function generateRandomRgbColor () {
-  return [Math.floor(Math.random() * 255), Math.floor(Math.random() * 255), Math.floor(Math.random() * 255)];
 }
 
 function rectRect (x1, y1, w1, h1, x2, y2, w2, h2) {
