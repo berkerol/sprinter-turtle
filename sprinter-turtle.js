@@ -443,14 +443,14 @@ function removeMeteors (ms) {
       let hits = 0;
       for (let j = trains.length - 1; j >= 0; j--) {
         let t = trains[j];
-        if (t.count !== 0 && rectCircle(t, m)) {
+        if (t.count !== 0 && rectCircle(t, t.width, train.height, m)) {
           hits++;
           trains.splice(j, 1);
         }
       }
       for (let j = vehicles.length - 1; j >= 0; j--) {
         let v = vehicles[j];
-        if (rectCircle(v, m)) {
+        if (rectCircle(v, v.width, v.height, m)) {
           hits++;
           vehicles.splice(j, 1);
         }
@@ -459,7 +459,7 @@ function removeMeteors (ms) {
         addExplosion(m.x, m.y, hits);
       }
       meteors.splice(i, 1);
-      if (rectCircle(turtle, m)) {
+      if (rectCircle(turtle, turtle.width, turtle.height, m)) {
         die('Meteor');
         break;
       }
@@ -529,24 +529,24 @@ function rectRect (x1, y1, w1, h1, x2, y2, w2, h2) {
   return x2 < x1 + w1 && x2 + w2 > x1 && y2 < y1 + h1 && y2 + h2 > y1;
 }
 
-function rectCircle (r, c) {
-  let distX = Math.abs(c.x - r.x - r.width / 2);
-  let distY = Math.abs(c.y - r.y - r.height / 2);
-  if (distX > (r.width / 2 + c.radius) || distY > (r.height / 2 + c.radius)) {
+function rectCircle (r, width, height, c) {
+  let distX = Math.abs(c.x - r.x - width / 2);
+  let distY = Math.abs(c.y - r.y - height / 2);
+  if (distX > (width / 2 + c.radius) || distY > (height / 2 + c.radius)) {
     return false;
   }
-  if (distX <= (r.width / 2) || distY <= (r.height / 2)) {
+  if (distX <= (width / 2) || distY <= (height / 2)) {
     return true;
   }
-  let dx = distX - r.width / 2;
-  let dy = distY - r.height / 2;
-  return (dx * dx + dy * dy <= (c.radius * c.radius));
+  let dX = distX - width / 2;
+  let dY = distY - height / 2;
+  return (dX * dX + dY * dY <= (c.radius * c.radius));
 }
 
 function circleCircle (x1, y1, r1, x2, y2, r2) {
-  let dx = x1 - x2;
-  let dy = y1 - y2;
-  return Math.sqrt(dx * dx + dy * dy) < r1 + r2;
+  let dX = x1 - x2;
+  let dY = y1 - y2;
+  return Math.sqrt(dX * dX + dY * dY) < r1 + r2;
 }
 
 function levelUp () {
