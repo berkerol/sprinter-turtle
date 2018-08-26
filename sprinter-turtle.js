@@ -91,7 +91,7 @@ let vehicle = {
   probability: 0.05,
   speedIncrement: 0.3,
   speed: 3 + 0.3 * (level - 1),
-  total: 5,
+  total: 12,
   width: 0.75 * lane.width
 };
 
