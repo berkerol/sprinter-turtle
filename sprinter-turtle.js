@@ -31,6 +31,18 @@ let lane = {
   countY: Math.floor(canvas.height / 60 - 1)
 };
 
+let railway = {
+  backgroundColor: '#F4EEE7',
+  middleColor: '#803300',
+  color: '#800000',
+  backgroundHeight: 0.8 * lane.height,
+  middleHeight: 0.7 * lane.height,
+  height: 0.6 * lane.height,
+  middleSpace: lane.width / 6,
+  middleThickness: 2 * lane.gap,
+  thickness: lane.gap
+};
+
 let explosion = {
   color: 'rgba(255, 55, 0, 0.5)',
   duration: 1000,
@@ -61,14 +73,15 @@ let rocket = {
 };
 
 let train = {
-  color: '#FF0000',
-  duration: 3000,
-  height: 0.1 * lane.height,
-  lanes: Math.floor(lane.countY / 2),
-  minWidth: 4 * lane.width,
+  color: '#AAAAAA',
+  height: 0.7 * lane.height,
+  highestSpeed: 1.2,
+  highestWidth: canvas.width / 3,
+  lowestSpeed: 0.8,
+  lowestWidth: canvas.height / 5,
   probability: 0.01,
-  warningColor: '#FFD700',
-  warningDuration: 1000
+  speedIncrement: 0.2,
+  speed: 4 + 0.2 * (level - 1)
 };
 
 let turtle = {
@@ -101,8 +114,7 @@ let label = {
   margin: 10
 };
 
-let continuousLanes = [];
-let discreteLanes = [];
+let lines = [];
 let explosions = [];
 let meteors = [];
 let rockets = [];
@@ -110,25 +122,57 @@ let trains = [];
 let vehicles = [];
 
 turtle.image.src = 'images/turtle.png';
-for (let i = 0; i < lane.countY - lane.countY / 2; i++) {
-  if (i !== Math.floor(lane.countY / 2)) {
-    continuousLanes.push({
-      x: 0,
-      y: 2 * (i + 1) * lane.height - lane.gap / 2
-    });
+for (let i = 1; i <= lane.countY; i++) {
+  if (i % 3 === 1 && i !== lane.countY) {
+    for (let j = 0; j < lane.countX; j++) {
+      if (j % 2 === 0) {
+        lines.push({
+          x: j * lane.width,
+          y: i * lane.height,
+          width: lane.width,
+          height: lane.gap,
+          color: lane.color
+        });
+      }
+    }
   } else {
-    continuousLanes.push({
+    lines.push({
       x: 0,
-      y: (2 * i + 1) * lane.height - lane.gap / 2
+      y: i * lane.height,
+      width: canvas.width,
+      height: lane.gap,
+      color: lane.color
     });
-  }
-}
-for (let i = 0; i < Math.floor(lane.countY / 2); i++) {
-  for (let j = 0; j < lane.countX; j++) {
-    if (j % 2 === 0) {
-      discreteLanes.push({
-        x: j * lane.width,
-        y: (2 * i + 1) * lane.height - lane.gap / 2
+    if (i % 3 === 0) {
+      lines.push({
+        x: 0,
+        y: i * lane.height - railway.backgroundHeight - (lane.height - railway.backgroundHeight) / 2,
+        width: canvas.width,
+        height: railway.backgroundHeight,
+        color: railway.backgroundColor
+      });
+      lines.push({
+        x: 0,
+        y: i * lane.height - railway.height - (lane.height - railway.height) / 2,
+        width: canvas.width,
+        height: railway.thickness,
+        color: railway.color
+      });
+      for (let j = 0; j < canvas.width; j += railway.middleSpace) {
+        lines.push({
+          x: j,
+          y: i * lane.height - railway.middleHeight - (lane.height - railway.middleHeight) / 2,
+          width: railway.middleThickness,
+          height: railway.middleHeight,
+          color: railway.middleColor
+        });
+      }
+      lines.push({
+        x: 0,
+        y: i * lane.height - (lane.height - railway.height) / 2,
+        width: canvas.width,
+        height: railway.thickness,
+        color: railway.color
       });
     }
   }
@@ -137,18 +181,17 @@ let backgroundCanvas = document.createElement('canvas');
 backgroundCanvas.width = canvas.width;
 backgroundCanvas.height = canvas.height;
 let backgroundCtx = backgroundCanvas.getContext('2d');
-backgroundCtx.fillStyle = lane.color;
-drawLanes(continuousLanes, canvas.width);
-drawLanes(discreteLanes, lane.width);
+drawLines(lines);
 draw();
 document.addEventListener('keydown', keyDownHandler);
 document.addEventListener('keyup', keyUpHandler);
 document.addEventListener('mousedown', mouseDownHandler);
 window.addEventListener('resize', resizeHandler);
 
-function drawLanes (lanes, width) {
-  for (let l of lanes) {
-    backgroundCtx.fillRect(l.x, l.y, width, lane.gap);
+function drawLines (lines) {
+  for (let l of lines) {
+    backgroundCtx.fillStyle = l.color;
+    backgroundCtx.fillRect(l.x, l.y, l.width, l.height);
   }
 }
 
@@ -202,7 +245,7 @@ function draw () {
   createTrains();
   createVehicles();
   removeMeteors(ms);
-  removeTrains(ms);
+  removeTrains(frames);
   removeVehicles(frames);
   window.requestAnimationFrame(draw);
 }
@@ -227,7 +270,7 @@ function drawRocket (r) {
 }
 
 function drawTrain (t) {
-  ctx.fillStyle = t.warningCount !== 0 ? train.warningColor : train.color;
+  ctx.fillStyle = train.color;
   ctx.fillRect(t.x, t.y, t.width, train.height);
 }
 
@@ -280,7 +323,7 @@ function processRockets (frames) {
     let hits = 0;
     for (let j = trains.length - 1; j >= 0; j--) {
       let t = trains[j];
-      if (t.count !== 0 && r.x >= t.x && r.x <= t.x + t.width && r.y >= t.y && r.y <= t.y + train.height) {
+      if (r.x >= t.x && r.x <= t.x + t.width && r.y >= t.y && r.y <= t.y + train.height) {
         hits++;
         trains.splice(j, 1);
       }
@@ -359,21 +402,23 @@ function createMeteors () {
 
 function createTrains () {
   if (Math.random() < train.probability) {
-    let x = Math.floor(Math.random() * (canvas.width - train.minWidth));
-    let y = 2 * Math.ceil(Math.random() * train.lanes) * lane.height - train.height / 2;
-    let width = train.minWidth + Math.floor(Math.random() * (canvas.width - train.minWidth - x));
+    let l;
+    do {
+      l = Math.floor(Math.random() * lane.countY);
+    } while (l % 3 !== 2);
     for (let t of trains) {
-      if (t.y === y && ((t.x >= x && t.x <= x + width) || (t.x + t.width >= x && t.x + t.width <= x + width) ||
-          (x >= t.x && x <= t.x + t.width) || (x + width >= t.x && x + width <= t.x + t.width))) {
+      if (t.lane === l) {
         return;
       }
     }
+    let direction = Math.random() < 0.5 ? 1 : -1;
+    let width = Math.floor(train.lowestWidth + Math.random() * (train.highestWidth - train.lowestWidth));
     trains.push({
-      x,
-      y,
+      x: direction === 1 ? -width : canvas.width,
+      y: l * lane.height + (lane.height - train.height) / 2,
       width,
-      count: 0,
-      warningCount: 1
+      lane: l,
+      speed: direction * (train.lowestSpeed + Math.random() * (train.highestSpeed - train.lowestSpeed))
     });
   }
 }
@@ -383,8 +428,11 @@ function createVehicles () {
     let x = -vehicle.width;
     let direction = 1;
     let image = '.svg';
-    let l = Math.floor(Math.random() * lane.countY);
-    if (l % 2 === 0) {
+    let l;
+    do {
+      l = Math.floor(Math.random() * lane.countY);
+    } while (l % 3 === 2);
+    if (l % 3 === 0) {
       x = canvas.width;
       direction = -1;
       image = '_reverse.svg';
@@ -415,7 +463,7 @@ function removeMeteors (ms) {
       let hits = 0;
       for (let j = trains.length - 1; j >= 0; j--) {
         let t = trains[j];
-        if (t.count !== 0 && rectCircle(t, t.width, train.height, m)) {
+        if (rectCircle(t, t.width, train.height, m)) {
           hits++;
           trains.splice(j, 1);
         }
@@ -439,25 +487,16 @@ function removeMeteors (ms) {
   }
 }
 
-function removeTrains (ms) {
+function removeTrains (frames) {
   for (let i = trains.length - 1; i >= 0; i--) {
     let t = trains[i];
-    if (t.warningCount !== 0) {
-      if (t.warningCount < train.warningDuration) {
-        t.warningCount += ms;
-      } else {
-        t.count = 1;
-        t.warningCount = 0;
-      }
+    t.x += t.speed * train.speed * frames;
+    if (t.x < -t.width || t.x > canvas.width) {
+      trains.splice(i, 1);
     } else {
-      if (t.count < train.duration) {
-        t.count += ms;
-        if (rectRect(t.x, t.y, t.width, train.height, turtle.x, turtle.y, turtle.width, turtle.height)) {
-          die('Train');
-          break;
-        }
-      } else {
-        trains.splice(i, 1);
+      if (rectRect(t.x, t.y, t.width, train.height, turtle.x, turtle.y, turtle.width, turtle.height)) {
+        die('Train');
+        break;
       }
     }
   }
@@ -514,6 +553,7 @@ function circleCircle (x1, y1, r1, x2, y2, r2) {
 
 function levelUp () {
   level++;
+  train.speed += train.speedIncrement;
   turtle.speed += turtle.speedIncrement;
   vehicle.speed += vehicle.speedIncrement;
 }
@@ -563,6 +603,7 @@ function keyDownHandler (e) {
   }
   if (e.keyCode === 76) {
     level--;
+    train.speed -= train.speedIncrement;
     turtle.speed -= turtle.speedIncrement;
     vehicle.speed -= vehicle.speedIncrement;
   }

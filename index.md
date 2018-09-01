@@ -27,7 +27,7 @@
     - After reaching the top, it flips vertically then it tries to reach the safe zone.
     - After reaching the safe zone, it again flips vertically.
     - Reaching the safe zone again completes one level.
-    - After completion of one level: turtle and vehicle speeds are increased by their respective speed increments, other things do not change.
+    - After completion of one level: train, turtle and vehicle speeds are increased by their respective speed increments, other things do not change.
 
   - Vehicle
 
@@ -39,29 +39,17 @@
 
   - Train
 
-    - They appear randomly between lanes and with random lengths.
-    - They have two phases:
-
-      - Warning phase
-
-        - It is the first phase of the train.
-        - They are opaque and yellow.
-        - They do not block any movement of any entity. (If turtle touches them, it does not die.)
-        - They can not be exploded by meteors and rockets.
-        - After this phase, actual train comes.
-
-      - Train phase
-
-        - It is the second (last) phase of the train.
-        - They are opaque and red.
-        - They block the vertical movement of the turtle. (If turtle touches them, it dies.)
-        - They can be exploded by meteors and rockets and creates explosions.
+    - They appear randomly on railways and with random directions, lengths and speeds.
+    - They are opaque and gray.
+    - They block the movements of the turtle.
+    - They can be exploded by meteors and rockets and creates explosions.
+    - There can not be more than one train on the same railway at the same time.
 
   - Meteor
 
     - They appear in random sizes and random positions and for random durations.
     - They are transparent so any entity below them is visible.
-    - They do not block any movement of any entity.
+    - They do not block any movement of any entity. (If turtle touches them, it does not die.)
     - They will explode trains, turtle and vehicles under them after they disappear.
     - Time to hit to the ground (disappear) is visible on them.
 
