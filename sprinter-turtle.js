@@ -32,13 +32,13 @@ let lane = {
 };
 
 let railway = {
-  backgroundColor: '#F4EEE7',
+  backgroundColor: '#EADED6',
   middleColor: '#803300',
   color: '#800000',
   backgroundHeight: 0.8 * lane.height,
   middleHeight: 0.7 * lane.height,
   height: 0.6 * lane.height,
-  middleSpace: lane.width / 6,
+  middleSpace: 0.2 * lane.width,
   middleThickness: 2 * lane.gap,
   thickness: lane.gap
 };
@@ -64,7 +64,7 @@ let meteor = {
 };
 
 let rocket = {
-  width: lane.width / 2,
+  width: 0.5 * lane.width,
   lineWidth: 5,
   lineCap: 'round',
   shadowBlur: 10,
@@ -73,21 +73,24 @@ let rocket = {
 };
 
 let train = {
-  color: '#AAAAAA',
+  arcX: 0.7 * lane.width,
+  arcY: 0.35 * lane.height,
+  colors: ['#909090', '#C4C4C4'],
+  colorStops: [0, 0.2, 0.8, 1],
   height: 0.7 * lane.height,
   highestSpeed: 1.2,
-  highestWidth: canvas.width / 3,
+  highestWidth: 8 * lane.width,
   lowestSpeed: 0.8,
-  lowestWidth: canvas.height / 5,
+  lowestWidth: 4 * lane.width,
   probability: 0.01,
   speedIncrement: 0.2,
   speed: 4 + 0.2 * (level - 1)
 };
 
 let turtle = {
-  x: canvas.width / 2 - 0.19 * lane.width,
+  x: canvas.width / 2 - 0.2 * lane.width,
   y: canvas.height - 0.8 * lane.height,
-  width: 0.38 * lane.width,
+  width: 0.4 * lane.width,
   height: 0.8 * lane.height,
   image: document.createElement('img'),
   speedIncrement: 0.1,
@@ -270,8 +273,24 @@ function drawRocket (r) {
 }
 
 function drawTrain (t) {
-  ctx.fillStyle = train.color;
-  ctx.fillRect(t.x, t.y, t.width, train.height);
+  ctx.beginPath();
+  ctx.moveTo(t.x + train.arcX, t.y);
+  ctx.lineTo(t.x + t.width - train.arcX, t.y);
+  ctx.quadraticCurveTo(t.x + t.width, t.y, t.x + t.width, t.y + train.arcY);
+  ctx.lineTo(t.x + t.width, t.y + train.height - train.arcY);
+  ctx.quadraticCurveTo(t.x + t.width, t.y + train.height, t.x + t.width - train.arcX, t.y + train.height);
+  ctx.lineTo(t.x + train.arcX, t.y + train.height);
+  ctx.quadraticCurveTo(t.x, t.y + train.height, t.x, t.y + train.height - train.arcY);
+  ctx.lineTo(t.x, t.y + train.arcY);
+  ctx.quadraticCurveTo(t.x, t.y, t.x + train.arcX, t.y);
+  let gradient = ctx.createLinearGradient(t.x, t.y, t.x, t.y + train.height);
+  gradient.addColorStop(train.colorStops[0], train.colors[0]);
+  gradient.addColorStop(train.colorStops[1], train.colors[1]);
+  gradient.addColorStop(train.colorStops[2], train.colors[1]);
+  gradient.addColorStop(train.colorStops[3], train.colors[0]);
+  ctx.fillStyle = gradient;
+  ctx.fill();
+  ctx.closePath();
 }
 
 function drawLabel (font, color, text, x, y) {
