@@ -44,11 +44,11 @@ let railway = {
 };
 
 let explosion = {
-  color: 'rgba(255, 55, 0, 0.5)',
-  duration: 1000,
-  growth: 2,
-  radius: 0.5 * lane.height,
-  step: 12.5
+  color: 'rgba(255, 55, 0, ',
+  alphaDecrease: 0.02,
+  size: 0.5 * lane.height,
+  speed: 2,
+  speedDecrease: 0.01
 };
 
 let meteor = {
@@ -217,7 +217,7 @@ function draw () {
   ctx.drawImage(backgroundCanvas, 0, 0);
   ctx.drawImage(turtle.image, turtle.x, turtle.y, turtle.width, turtle.height);
   for (let e of explosions) {
-    drawCircle(e.x, e.y, e.radius + e.count / explosion.step, explosion.color);
+    drawCircle(e.x, e.y, e.size * e.hits, explosion.color + e.alpha + ')');
   }
   ctx.save();
   ctx.lineWidth = rocket.lineWidth;
@@ -241,7 +241,7 @@ function draw () {
   drawLabel(label.font, label.color, 'Level: ' + level, 10, canvas.height - label.margin);
   drawLabel(label.font, label.color, 'Lives: ' + lives, 130, canvas.height - label.margin);
   drawLabel(label.font, label.color, 'Rockets: ' + rocketCount, canvas.width - 300, canvas.height - label.margin);
-  processExplosions(ms);
+  processExplosions(frames);
   processRockets(frames);
   processTurtle(frames);
   createMeteors();
@@ -309,8 +309,10 @@ function addExplosion (x, y, hits) {
   explosions.push({
     x,
     y,
-    radius: explosion.radius * hits,
-    count: 1
+    hits,
+    alpha: 1.0,
+    size: explosion.size,
+    speed: explosion.speed
   });
 }
 
@@ -326,11 +328,16 @@ function addRocket (speedX, speedY) {
   }
 }
 
-function processExplosions (ms) {
+function processExplosions (frames) {
   for (let i = explosions.length - 1; i >= 0; i--) {
     let e = explosions[i];
-    e.count += explosion.growth * ms;
-    if (e.count > explosion.duration) {
+    e.size += e.speed * frames;
+    if (e.speed > explosion.speedDecrease * frames) {
+      e.speed -= explosion.speedDecrease * frames;
+    }
+    if (e.alpha > explosion.alphaDecrease * frames) {
+      e.alpha -= explosion.alphaDecrease * frames;
+    } else {
       explosions.splice(i, 1);
     }
   }
