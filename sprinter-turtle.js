@@ -585,14 +585,16 @@ function levelUp () {
 }
 
 function die (type) {
-  window.alert(type + ' hit, you died!');
-  if (--lives === 0) {
-    window.alert('GAME OVER!');
-    document.location.reload();
-  } else {
-    window.alert('START AGAIN!');
-    clear();
-    reset();
+  if (--lives >= 0) {
+    window.alert(type + ' hit, you died!');
+    if (lives === 0) {
+      window.alert('GAME OVER!');
+      window.location.reload(false);
+    } else {
+      window.alert('START AGAIN!');
+      clear();
+      reset();
+    }
   }
 }
 
