@@ -1,7 +1,7 @@
 /* global performance */
 /* global FPSMeter */
-let canvas = document.getElementById('canvas');
-let ctx = canvas.getContext('2d');
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
@@ -9,7 +9,7 @@ const getTime = typeof performance === 'function' ? performance.now : Date.now;
 const FRAME_DURATION = 1000 / 58;
 let then = getTime();
 let acc = 0;
-let meter = new FPSMeter({
+const meter = new FPSMeter({
   left: canvas.width - 140 + 'px',
   top: 'auto',
   bottom: '12px',
@@ -22,7 +22,7 @@ let level = 1;
 let lives = 10;
 let rocketCount = 10;
 
-let lane = {
+const lane = {
   width: 90,
   height: 60,
   gap: 1,
@@ -31,7 +31,7 @@ let lane = {
   countY: Math.floor(canvas.height / 60 - 1)
 };
 
-let railway = {
+const railway = {
   backgroundColor: '#EADED6',
   middleColor: '#803300',
   color: '#800000',
@@ -43,7 +43,7 @@ let railway = {
   thickness: lane.gap
 };
 
-let explosion = {
+const explosion = {
   color: 'rgba(255, 55, 0, ',
   alphaDecrease: 0.02,
   size: 0.5 * lane.height,
@@ -51,7 +51,7 @@ let explosion = {
   speedDecrease: 0.01
 };
 
-let meteor = {
+const meteor = {
   color: 'rgba(200, 200, 200, 0.5)',
   textColor: 'rgba(25, 25, 25, 0.5)',
   font: '44px Arial',
@@ -63,7 +63,7 @@ let meteor = {
   step: 1000
 };
 
-let rocket = {
+const rocket = {
   width: 0.5 * lane.width,
   lineWidth: 5,
   lineCap: 'round',
@@ -72,7 +72,7 @@ let rocket = {
   speed: 10
 };
 
-let train = {
+const train = {
   arcX: 0.7 * lane.width,
   arcY: 0.35 * lane.height,
   colors: ['#909090', '#C4C4C4'],
@@ -87,7 +87,7 @@ let train = {
   speed: 4 + 0.2 * (level - 1)
 };
 
-let turtle = {
+const turtle = {
   x: canvas.width / 2 - 0.2 * lane.width,
   y: canvas.height - 0.8 * lane.height,
   width: 0.4 * lane.width,
@@ -100,7 +100,7 @@ let turtle = {
   touchedTop: false
 };
 
-let vehicle = {
+const vehicle = {
   height: 0.6 * lane.height,
   highestSpeed: 1.5,
   lowestSpeed: 0.5,
@@ -111,16 +111,16 @@ let vehicle = {
   width: 0.75 * lane.width
 };
 
-let label = {
+const label = {
   font: '24px Arial',
   color: '#FFFFFF',
   margin: 10
 };
 
-let lines = [];
-let explosions = [];
+const lines = [];
+const explosions = [];
 let meteors = [];
-let rockets = [];
+const rockets = [];
 let trains = [];
 let vehicles = [];
 
@@ -180,10 +180,10 @@ for (let i = 1; i <= lane.countY; i++) {
     }
   }
 }
-let backgroundCanvas = document.createElement('canvas');
+const backgroundCanvas = document.createElement('canvas');
 backgroundCanvas.width = canvas.width;
 backgroundCanvas.height = canvas.height;
-let backgroundCtx = backgroundCanvas.getContext('2d');
+const backgroundCtx = backgroundCanvas.getContext('2d');
 drawLines(lines);
 draw();
 document.addEventListener('keydown', keyDownHandler);
@@ -192,14 +192,14 @@ document.addEventListener('mousedown', mouseDownHandler);
 window.addEventListener('resize', resizeHandler);
 
 function drawLines (lines) {
-  for (let l of lines) {
+  for (const l of lines) {
     backgroundCtx.fillStyle = l.color;
     backgroundCtx.fillRect(l.x, l.y, l.width, l.height);
   }
 }
 
 function draw () {
-  let now = getTime();
+  const now = getTime();
   let ms = now - then;
   let frames = 0;
   then = now;
@@ -216,7 +216,7 @@ function draw () {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.drawImage(backgroundCanvas, 0, 0);
   ctx.drawImage(turtle.image, turtle.x, turtle.y, turtle.width, turtle.height);
-  for (let e of explosions) {
+  for (const e of explosions) {
     drawCircle(e.x, e.y, e.size * e.hits, explosion.color + e.alpha + ')');
   }
   ctx.save();
@@ -225,17 +225,17 @@ function draw () {
   ctx.shadowBlur = rocket.shadowBlur;
   ctx.shadowColor = rocket.color;
   ctx.strokeStyle = rocket.color;
-  for (let r of rockets) {
+  for (const r of rockets) {
     drawRocket(r);
   }
   ctx.restore();
-  for (let t of trains) {
+  for (const t of trains) {
     drawTrain(t);
   }
-  for (let v of vehicles) {
+  for (const v of vehicles) {
     ctx.drawImage(v.image, v.x, v.y, vehicle.width, vehicle.height);
   }
-  for (let m of meteors) {
+  for (const m of meteors) {
     drawMeteor(m);
   }
   drawLabel(label.font, label.color, 'Level: ' + level, 10, canvas.height - label.margin);
@@ -283,7 +283,7 @@ function drawTrain (t) {
   ctx.quadraticCurveTo(t.x, t.y + train.height, t.x, t.y + train.height - train.arcY);
   ctx.lineTo(t.x, t.y + train.arcY);
   ctx.quadraticCurveTo(t.x, t.y, t.x + train.arcX, t.y);
-  let gradient = ctx.createLinearGradient(t.x, t.y, t.x, t.y + train.height);
+  const gradient = ctx.createLinearGradient(t.x, t.y, t.x, t.y + train.height);
   gradient.addColorStop(train.colorStops[0], train.colors[0]);
   gradient.addColorStop(train.colorStops[1], train.colors[1]);
   gradient.addColorStop(train.colorStops[2], train.colors[1]);
@@ -330,7 +330,7 @@ function addRocket (speedX, speedY) {
 
 function processExplosions (frames) {
   for (let i = explosions.length - 1; i >= 0; i--) {
-    let e = explosions[i];
+    const e = explosions[i];
     e.size += e.speed * frames;
     if (e.speed > explosion.speedDecrease * frames) {
       e.speed -= explosion.speedDecrease * frames;
@@ -345,17 +345,17 @@ function processExplosions (frames) {
 
 function processRockets (frames) {
   for (let i = rockets.length - 1; i >= 0; i--) {
-    let r = rockets[i];
+    const r = rockets[i];
     let hits = 0;
     for (let j = trains.length - 1; j >= 0; j--) {
-      let t = trains[j];
+      const t = trains[j];
       if (r.x >= t.x && r.x <= t.x + t.width && r.y >= t.y && r.y <= t.y + train.height) {
         hits++;
         trains.splice(j, 1);
       }
     }
     for (let j = vehicles.length - 1; j >= 0; j--) {
-      let v = vehicles[j];
+      const v = vehicles[j];
       if (r.x >= v.x && r.x <= v.x + vehicle.width && r.y >= v.y && r.y <= v.y + vehicle.height) {
         hits++;
         vehicles.splice(j, 1);
@@ -409,10 +409,10 @@ function processTurtle (frames) {
 
 function createMeteors () {
   if (Math.random() < meteor.probability) {
-    let radius = Math.floor(meteor.lowestRadius + Math.random() * (meteor.highestRadius - meteor.lowestRadius));
-    let x = Math.floor(radius + Math.random() * (canvas.width - 2 * radius));
-    let y = Math.floor(radius + Math.random() * (lane.countY * lane.height - 2 * radius));
-    for (let m of meteors) {
+    const radius = Math.floor(meteor.lowestRadius + Math.random() * (meteor.highestRadius - meteor.lowestRadius));
+    const x = Math.floor(radius + Math.random() * (canvas.width - 2 * radius));
+    const y = Math.floor(radius + Math.random() * (lane.countY * lane.height - 2 * radius));
+    for (const m of meteors) {
       if (circleCircle(m.x, m.y, m.radius, x, y, radius)) {
         return;
       }
@@ -432,13 +432,13 @@ function createTrains () {
     do {
       l = Math.floor(Math.random() * lane.countY);
     } while (l % 3 !== 2);
-    for (let t of trains) {
+    for (const t of trains) {
       if (t.lane === l) {
         return;
       }
     }
-    let direction = Math.random() < 0.5 ? 1 : -1;
-    let width = Math.floor(train.lowestWidth + Math.random() * (train.highestWidth - train.lowestWidth));
+    const direction = Math.random() < 0.5 ? 1 : -1;
+    const width = Math.floor(train.lowestWidth + Math.random() * (train.highestWidth - train.lowestWidth));
     trains.push({
       x: direction === 1 ? -width : canvas.width,
       y: l * lane.height + (lane.height - train.height) / 2,
@@ -463,7 +463,7 @@ function createVehicles () {
       direction = -1;
       image = '_reverse.svg';
     }
-    for (let v of vehicles) {
+    for (const v of vehicles) {
       if (rectRect(v.x, v.y, vehicle.width, vehicle.height, x, l * lane.height, lane.width, lane.height)) {
         return;
       }
@@ -482,20 +482,20 @@ function createVehicles () {
 
 function removeMeteors (ms) {
   for (let i = meteors.length - 1; i >= 0; i--) {
-    let m = meteors[i];
+    const m = meteors[i];
     if (m.count > 0) {
       m.count -= ms;
     } else {
       let hits = 0;
       for (let j = trains.length - 1; j >= 0; j--) {
-        let t = trains[j];
+        const t = trains[j];
         if (rectCircle(t, t.width, train.height, m)) {
           hits++;
           trains.splice(j, 1);
         }
       }
       for (let j = vehicles.length - 1; j >= 0; j--) {
-        let v = vehicles[j];
+        const v = vehicles[j];
         if (rectCircle(v, vehicle.width, vehicle.height, m)) {
           hits++;
           vehicles.splice(j, 1);
@@ -515,7 +515,7 @@ function removeMeteors (ms) {
 
 function removeTrains (frames) {
   for (let i = trains.length - 1; i >= 0; i--) {
-    let t = trains[i];
+    const t = trains[i];
     t.x += t.speed * train.speed * frames;
     if (t.x < -t.width || t.x > canvas.width) {
       trains.splice(i, 1);
@@ -530,8 +530,8 @@ function removeTrains (frames) {
 
 function removeVehicles (frames) {
   for (let i = vehicles.length - 1; i >= 0; i--) {
-    let v1 = vehicles[i];
-    for (let v2 of vehicles) {
+    const v1 = vehicles[i];
+    for (const v2 of vehicles) {
       if (v1.lane === v2.lane && v1 !== v2 && rectRect(v1.x, v1.y, vehicle.width, vehicle.height, v2.x, v2.y, vehicle.width, vehicle.height)) {
         [v1.speed, v2.speed] = [v2.speed, v1.speed];
         if (v1.x < v2.x) {
@@ -558,22 +558,22 @@ function rectRect (x1, y1, w1, h1, x2, y2, w2, h2) {
 }
 
 function rectCircle (r, width, height, c) {
-  let distX = Math.abs(c.x - r.x - width / 2);
-  let distY = Math.abs(c.y - r.y - height / 2);
+  const distX = Math.abs(c.x - r.x - width / 2);
+  const distY = Math.abs(c.y - r.y - height / 2);
   if (distX > (width / 2 + c.radius) || distY > (height / 2 + c.radius)) {
     return false;
   }
   if (distX <= (width / 2) || distY <= (height / 2)) {
     return true;
   }
-  let dX = distX - width / 2;
-  let dY = distY - height / 2;
+  const dX = distX - width / 2;
+  const dY = distY - height / 2;
   return (dX * dX + dY * dY <= (c.radius * c.radius));
 }
 
 function circleCircle (x1, y1, r1, x2, y2, r2) {
-  let dX = x1 - x2;
-  let dY = y1 - y2;
+  const dX = x1 - x2;
+  const dY = y1 - y2;
   return Math.sqrt(dX * dX + dY * dY) < r1 + r2;
 }
 
@@ -665,9 +665,9 @@ function keyUpHandler (e) {
 }
 
 function mouseDownHandler (e) {
-  let x = e.clientX - canvas.offsetLeft - turtle.x;
-  let y = e.clientY - canvas.offsetTop - turtle.y;
-  let norm = Math.sqrt(x ** 2 + y ** 2);
+  const x = e.clientX - canvas.offsetLeft - turtle.x;
+  const y = e.clientY - canvas.offsetTop - turtle.y;
+  const norm = Math.sqrt(x ** 2 + y ** 2);
   addRocket(x / norm * rocket.speed, y / norm * rocket.speed);
 }
 
