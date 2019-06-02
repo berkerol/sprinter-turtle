@@ -568,13 +568,13 @@ function rectCircle (r, width, height, c) {
   }
   const dX = distX - width / 2;
   const dY = distY - height / 2;
-  return (dX * dX + dY * dY <= (c.radius * c.radius));
+  return dX ** 2 + dY ** 2 <= c.radius ** 2;
 }
 
 function circleCircle (x1, y1, r1, x2, y2, r2) {
   const dX = x1 - x2;
   const dY = y1 - y2;
-  return Math.sqrt(dX * dX + dY * dY) < r1 + r2;
+  return Math.sqrt(dX ** 2 + dY ** 2) < r1 + r2;
 }
 
 function levelUp () {
