@@ -216,30 +216,49 @@ function draw () {
   ctx.drawImage(backgroundCanvas, 0, 0);
   ctx.drawImage(turtle.image, turtle.x, turtle.y, turtle.width, turtle.height);
   for (const e of explosions) {
-    drawCircle(e.x, e.y, e.size * e.hits, explosion.color + e.alpha + ')');
+    ctx.beginPath();
+    ctx.arc(e.x, e.y, e.size * e.hits, 0, 2 * Math.PI);
+    fill(explosion.color + e.alpha + ')');
   }
-  ctx.save();
-  ctx.lineWidth = rocket.lineWidth;
-  ctx.lineCap = rocket.lineCap;
-  ctx.shadowBlur = rocket.shadowBlur;
-  ctx.shadowColor = rocket.color;
-  ctx.strokeStyle = rocket.color;
-  for (const r of rockets) {
-    drawRocket(r);
+  if (rockets.length > 0) {
+    ctx.save();
+    ctx.lineWidth = rocket.lineWidth;
+    ctx.lineCap = rocket.lineCap;
+    ctx.shadowBlur = rocket.shadowBlur;
+    ctx.shadowColor = rocket.color;
+    ctx.strokeStyle = rocket.color;
+    ctx.beginPath();
+    for (const r of rockets) {
+      drawRocket(r);
+    }
+    ctx.stroke();
+    ctx.closePath();
+    ctx.restore();
   }
-  ctx.restore();
   for (const t of trains) {
     drawTrain(t);
   }
   for (const v of vehicles) {
     ctx.drawImage(v.image, v.x, v.y, vehicle.width, vehicle.height);
   }
-  for (const m of meteors) {
-    drawMeteor(m);
+  if (meteors.length > 0) {
+    ctx.beginPath();
+    for (const m of meteors) {
+      ctx.moveTo(m.x, m.y);
+      ctx.arc(m.x, m.y, m.radius, 0, 2 * Math.PI);
+    }
+    fill(meteor.color);
+    ctx.font = meteor.font;
+    ctx.fillStyle = meteor.textColor;
+    for (const m of meteors) {
+      ctx.fillText(Math.ceil(m.count / meteor.step), m.x - m.radius / 4, m.y + m.radius / 4);
+    }
   }
-  drawLabel(label.font, label.color, 'Level: ' + level, 10, canvas.height - label.margin);
-  drawLabel(label.font, label.color, 'Lives: ' + lives, 130, canvas.height - label.margin);
-  drawLabel(label.font, label.color, 'Rockets: ' + rocketCount, canvas.width - 300, canvas.height - label.margin);
+  ctx.font = label.font;
+  ctx.fillStyle = label.color;
+  ctx.fillText('Level: ' + level, 10, canvas.height - label.margin);
+  ctx.fillText('Lives: ' + lives, 130, canvas.height - label.margin);
+  ctx.fillText('Rockets: ' + rocketCount, canvas.width - 300, canvas.height - label.margin);
   processExplosions(frames);
   processRockets(frames);
   processTurtle(frames);
@@ -252,23 +271,9 @@ function draw () {
   window.requestAnimationFrame(draw);
 }
 
-function drawCircle (x, y, radius, color) {
-  ctx.beginPath();
-  ctx.arc(x, y, radius, 0, 2 * Math.PI);
-  fill(color);
-}
-
-function drawMeteor (m) {
-  drawCircle(m.x, m.y, m.radius, meteor.color);
-  drawLabel(meteor.font, meteor.textColor, Math.ceil(m.count / meteor.step), m.x - m.radius / 4, m.y + m.radius / 4);
-}
-
 function drawRocket (r) {
-  ctx.beginPath();
   ctx.moveTo(r.x, r.y);
   ctx.lineTo(r.x + r.speedX / rocket.speed * rocket.width, r.y + r.speedY / rocket.speed * rocket.width);
-  ctx.stroke();
-  ctx.closePath();
 }
 
 function drawTrain (t) {
@@ -287,15 +292,7 @@ function drawTrain (t) {
   gradient.addColorStop(train.colorStops[1], train.colors[1]);
   gradient.addColorStop(train.colorStops[2], train.colors[1]);
   gradient.addColorStop(train.colorStops[3], train.colors[0]);
-  ctx.fillStyle = gradient;
-  ctx.fill();
-  ctx.closePath();
-}
-
-function drawLabel (font, color, text, x, y) {
-  ctx.font = font;
-  ctx.fillStyle = color;
-  ctx.fillText(text, x, y);
+  fill(gradient);
 }
 
 function fill (color) {
