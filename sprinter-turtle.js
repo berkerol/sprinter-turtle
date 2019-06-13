@@ -216,9 +216,10 @@ function draw () {
   ctx.drawImage(backgroundCanvas, 0, 0);
   ctx.drawImage(turtle.image, turtle.x, turtle.y, turtle.width, turtle.height);
   for (const e of explosions) {
+    ctx.fillStyle = explosion.color + e.alpha + ')';
     ctx.beginPath();
     ctx.arc(e.x, e.y, e.size * e.hits, 0, 2 * Math.PI);
-    fill(explosion.color + e.alpha + ')');
+    ctx.fill();
   }
   if (rockets.length > 0) {
     ctx.save();
@@ -229,10 +230,10 @@ function draw () {
     ctx.strokeStyle = rocket.color;
     ctx.beginPath();
     for (const r of rockets) {
-      drawRocket(r);
+      ctx.moveTo(r.x, r.y);
+      ctx.lineTo(r.x + r.speedX / rocket.speed * rocket.width, r.y + r.speedY / rocket.speed * rocket.width);
     }
     ctx.stroke();
-    ctx.closePath();
     ctx.restore();
   }
   for (const t of trains) {
@@ -242,12 +243,13 @@ function draw () {
     ctx.drawImage(v.image, v.x, v.y, vehicle.width, vehicle.height);
   }
   if (meteors.length > 0) {
+    ctx.fillStyle = meteor.color;
     ctx.beginPath();
     for (const m of meteors) {
       ctx.moveTo(m.x, m.y);
       ctx.arc(m.x, m.y, m.radius, 0, 2 * Math.PI);
     }
-    fill(meteor.color);
+    ctx.fill();
     ctx.font = meteor.font;
     ctx.fillStyle = meteor.textColor;
     for (const m of meteors) {
@@ -271,12 +273,13 @@ function draw () {
   window.requestAnimationFrame(draw);
 }
 
-function drawRocket (r) {
-  ctx.moveTo(r.x, r.y);
-  ctx.lineTo(r.x + r.speedX / rocket.speed * rocket.width, r.y + r.speedY / rocket.speed * rocket.width);
-}
-
 function drawTrain (t) {
+  const gradient = ctx.createLinearGradient(t.x, t.y, t.x, t.y + train.height);
+  gradient.addColorStop(train.colorStops[0], train.colors[0]);
+  gradient.addColorStop(train.colorStops[1], train.colors[1]);
+  gradient.addColorStop(train.colorStops[2], train.colors[1]);
+  gradient.addColorStop(train.colorStops[3], train.colors[0]);
+  ctx.fillStyle = gradient;
   ctx.beginPath();
   ctx.moveTo(t.x + train.arcX, t.y);
   ctx.lineTo(t.x + t.width - train.arcX, t.y);
@@ -287,18 +290,7 @@ function drawTrain (t) {
   ctx.quadraticCurveTo(t.x, t.y + train.height, t.x, t.y + train.height - train.arcY);
   ctx.lineTo(t.x, t.y + train.arcY);
   ctx.quadraticCurveTo(t.x, t.y, t.x + train.arcX, t.y);
-  const gradient = ctx.createLinearGradient(t.x, t.y, t.x, t.y + train.height);
-  gradient.addColorStop(train.colorStops[0], train.colors[0]);
-  gradient.addColorStop(train.colorStops[1], train.colors[1]);
-  gradient.addColorStop(train.colorStops[2], train.colors[1]);
-  gradient.addColorStop(train.colorStops[3], train.colors[0]);
-  fill(gradient);
-}
-
-function fill (color) {
-  ctx.fillStyle = color;
   ctx.fill();
-  ctx.closePath();
 }
 
 function addExplosion (x, y, hits) {
