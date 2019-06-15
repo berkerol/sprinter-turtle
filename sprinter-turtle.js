@@ -8,6 +8,7 @@ const getTime = typeof performance === 'function' ? performance.now : Date.now;
 const FRAME_DURATION = 1000 / 58;
 let then = getTime();
 let acc = 0;
+let animation;
 const meter = new FPSMeter({
   left: canvas.width - 140 + 'px',
   top: 'auto',
@@ -273,7 +274,7 @@ function draw () {
   removeMeteors(ms);
   removeTrains(frames);
   removeVehicles(frames);
-  window.requestAnimationFrame(draw);
+  animation = window.requestAnimationFrame(draw);
 }
 
 function drawTrain (t) {
@@ -605,61 +606,75 @@ function reset () {
 }
 
 function keyDownHandler (e) {
-  if (e.keyCode === 87) {
-    turtle.speedY = -turtle.speed;
-  }
-  if (e.keyCode === 83) {
-    turtle.speedY = turtle.speed;
-  }
-  if (e.keyCode === 65) {
-    turtle.speedX = -turtle.speed;
-  }
-  if (e.keyCode === 68) {
-    turtle.speedX = turtle.speed;
-  }
-  if (e.keyCode === 79) {
-    levelUp();
-  }
-  if (e.keyCode === 76) {
-    level--;
-    train.speed -= train.speedIncrement;
-    turtle.speed -= turtle.speedIncrement;
-    vehicle.speed -= vehicle.speedIncrement;
+  if (animation !== undefined) {
+    if (e.keyCode === 87) {
+      turtle.speedY = -turtle.speed;
+    }
+    if (e.keyCode === 83) {
+      turtle.speedY = turtle.speed;
+    }
+    if (e.keyCode === 65) {
+      turtle.speedX = -turtle.speed;
+    }
+    if (e.keyCode === 68) {
+      turtle.speedX = turtle.speed;
+    }
+    if (e.keyCode === 79) {
+      levelUp();
+    }
+    if (e.keyCode === 76) {
+      level--;
+      train.speed -= train.speedIncrement;
+      turtle.speed -= turtle.speedIncrement;
+      vehicle.speed -= vehicle.speedIncrement;
+    }
   }
 }
 
 function keyUpHandler (e) {
-  if (e.keyCode === 87 || e.keyCode === 83) {
-    turtle.speedY = 0;
+  if (animation !== undefined) {
+    if (e.keyCode === 87 || e.keyCode === 83) {
+      turtle.speedY = 0;
+    }
+    if (e.keyCode === 65 || e.keyCode === 68) {
+      turtle.speedX = 0;
+    }
+    if (e.keyCode === 38) {
+      addRocket(0, -rocket.speed);
+    }
+    if (e.keyCode === 40) {
+      addRocket(0, rocket.speed);
+    }
+    if (e.keyCode === 37) {
+      addRocket(-rocket.speed, 0);
+    }
+    if (e.keyCode === 39) {
+      addRocket(rocket.speed, 0);
+    }
+    if (e.keyCode === 67) {
+      clear();
+    }
+    if (e.keyCode === 82) {
+      reset();
+    }
   }
-  if (e.keyCode === 65 || e.keyCode === 68) {
-    turtle.speedX = 0;
-  }
-  if (e.keyCode === 67) {
-    clear();
-  }
-  if (e.keyCode === 82) {
-    reset();
-  }
-  if (e.keyCode === 38) {
-    addRocket(0, -rocket.speed);
-  }
-  if (e.keyCode === 40) {
-    addRocket(0, rocket.speed);
-  }
-  if (e.keyCode === 37) {
-    addRocket(-rocket.speed, 0);
-  }
-  if (e.keyCode === 39) {
-    addRocket(rocket.speed, 0);
+  if (e.keyCode === 80) {
+    if (animation === undefined) {
+      animation = window.requestAnimationFrame(draw);
+    } else {
+      window.cancelAnimationFrame(animation);
+      animation = undefined;
+    }
   }
 }
 
 function mouseDownHandler (e) {
-  const x = e.clientX - canvas.offsetLeft - turtle.x;
-  const y = e.clientY - canvas.offsetTop - turtle.y;
-  const norm = Math.sqrt(x ** 2 + y ** 2);
-  addRocket(x / norm * rocket.speed, y / norm * rocket.speed);
+  if (animation !== undefined) {
+    const x = e.clientX - canvas.offsetLeft - turtle.x;
+    const y = e.clientY - canvas.offsetTop - turtle.y;
+    const norm = Math.sqrt(x ** 2 + y ** 2);
+    addRocket(x / norm * rocket.speed, y / norm * rocket.speed);
+  }
 }
 
 function resizeHandler () {

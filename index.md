@@ -12,6 +12,7 @@
 - Reset the turtle to safe zone by pressing _R_.
 - Clear all meteors, trains and vehicles by pressing _C_.
 - Increase and decrease level by pressing _O_ and _L_.
+- Pause the game by pressing _P_.
 
 ## Gameplay & Features
 
