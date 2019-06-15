@@ -113,7 +113,10 @@ const vehicle = {
 const label = {
   font: '24px Arial',
   color: '#FFFFFF',
-  margin: 10
+  margin: 10,
+  left: 10,
+  middle: 130,
+  right: canvas.width - 300
 };
 
 const lines = [];
@@ -258,9 +261,9 @@ function draw () {
   }
   ctx.font = label.font;
   ctx.fillStyle = label.color;
-  ctx.fillText('Level: ' + level, 10, canvas.height - label.margin);
-  ctx.fillText('Lives: ' + lives, 130, canvas.height - label.margin);
-  ctx.fillText('Rockets: ' + rocketCount, canvas.width - 300, canvas.height - label.margin);
+  ctx.fillText('Level: ' + level, label.left, canvas.height - label.margin);
+  ctx.fillText('Lives: ' + lives, label.middle, canvas.height - label.margin);
+  ctx.fillText('Rockets: ' + rocketCount, label.right, canvas.height - label.margin);
   processExplosions(frames);
   processRockets(frames);
   processTurtle(frames);
