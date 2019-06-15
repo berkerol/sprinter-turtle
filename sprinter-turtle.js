@@ -301,7 +301,7 @@ function addExplosion (x, y, hits) {
     x,
     y,
     hits,
-    alpha: 1.0,
+    alpha: 1,
     size: explosion.size,
     speed: explosion.speed
   });
