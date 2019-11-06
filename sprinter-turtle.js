@@ -1,24 +1,4 @@
-/* global performance FPSMeter */
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-
-const getTime = typeof performance === 'function' ? performance.now : Date.now;
-const FRAME_THRESHOLD = 300;
-const FRAME_DURATION = 1000 / 58;
-let then = getTime();
-let acc = 0;
-let animation;
-const meter = new FPSMeter({
-  left: canvas.width - 140 + 'px',
-  top: 'auto',
-  bottom: '12px',
-  theme: 'transparent',
-  heat: 1,
-  graph: 1
-});
-
+/* global canvas ctx animation:writable gameLoop label addResize loop drawCircle paintCircle drawLine paintRoundRect isIntersectingRectangleWithRectangle isIntersectingRectangleWithCircle getDistance generateRandomNumber generateRandomInteger */
 let level = 1;
 let lives = 10;
 let rocketCount = 10;
@@ -56,12 +36,12 @@ const meteor = {
   color: 'rgba(200, 200, 200, 0.5)',
   textColor: 'rgba(25, 25, 25, 0.5)',
   font: '44px Arial',
-  highestDuration: 4000,
+  highestDuration: 240,
   highestRadius: 1.2 * lane.height,
-  lowestDuration: 2000,
+  lowestDuration: 120,
   lowestRadius: 0.8 * lane.height,
   probability: 0.005,
-  step: 1000
+  step: 59
 };
 
 const rocket = {
@@ -112,14 +92,12 @@ const vehicle = {
   width: 0.75 * lane.width
 };
 
-const label = {
-  font: '24px Arial',
-  color: '#FFFFFF',
-  margin: 10,
-  left: 10,
-  middle: 130,
-  right: canvas.width - 300
-};
+label.font = '24px Arial';
+label.color = '#FFFFFF';
+label.margin = 10;
+label.left = 10;
+label.middle = 130;
+label.right = canvas.width - 300;
 
 const lines = [];
 const explosions = [];
@@ -189,42 +167,16 @@ backgroundCanvas.width = canvas.width;
 backgroundCanvas.height = canvas.height;
 const backgroundCtx = backgroundCanvas.getContext('2d');
 drawLines(lines);
-draw();
+addResize();
 document.addEventListener('keydown', keyDownHandler);
 document.addEventListener('keyup', keyUpHandler);
 document.addEventListener('mousedown', mouseDownHandler);
-window.addEventListener('resize', resizeHandler);
 
-function drawLines (lines) {
-  for (const l of lines) {
-    backgroundCtx.fillStyle = l.color;
-    backgroundCtx.fillRect(l.x, l.y, l.width, l.height);
-  }
-}
-
-function draw () {
-  const now = getTime();
-  let ms = now - then;
-  let frames = 0;
-  then = now;
-  if (ms < FRAME_THRESHOLD) {
-    acc += ms;
-    while (acc >= FRAME_DURATION) {
-      frames++;
-      acc -= FRAME_DURATION;
-    }
-  } else {
-    ms = 0;
-  }
-  meter.tick();
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+loop(function (frames) {
   ctx.drawImage(backgroundCanvas, 0, 0);
   ctx.drawImage(turtle.image, turtle.x, turtle.y, turtle.width, turtle.height);
   for (const e of explosions) {
-    ctx.fillStyle = explosion.color + e.alpha + ')';
-    ctx.beginPath();
-    ctx.arc(e.x, e.y, e.size * e.hits, 0, 2 * Math.PI);
-    ctx.fill();
+    paintCircle(e.x, e.y, e.size * e.hits, explosion.color + e.alpha + ')');
   }
   if (rockets.length > 0) {
     ctx.save();
@@ -235,8 +187,7 @@ function draw () {
     ctx.strokeStyle = rocket.color;
     ctx.beginPath();
     for (const r of rockets) {
-      ctx.moveTo(r.x, r.y);
-      ctx.lineTo(r.x + r.speedX / rocket.speed * rocket.width, r.y + r.speedY / rocket.speed * rocket.width);
+      drawLine(r.x, r.y, r.x + r.speedX / rocket.speed * rocket.width, r.y + r.speedY / rocket.speed * rocket.width);
     }
     ctx.stroke();
     ctx.restore();
@@ -251,8 +202,7 @@ function draw () {
     ctx.fillStyle = meteor.color;
     ctx.beginPath();
     for (const m of meteors) {
-      ctx.moveTo(m.x, m.y);
-      ctx.arc(m.x, m.y, m.radius, 0, 2 * Math.PI);
+      drawCircle(m.x, m.y, m.radius);
     }
     ctx.fill();
     ctx.font = meteor.font;
@@ -272,10 +222,16 @@ function draw () {
   createMeteors();
   createTrains();
   createVehicles();
-  removeMeteors(ms);
+  removeMeteors(frames);
   removeTrains(frames);
   removeVehicles(frames);
-  animation = window.requestAnimationFrame(draw);
+});
+
+function drawLines (lines) {
+  for (const l of lines) {
+    backgroundCtx.fillStyle = l.color;
+    backgroundCtx.fillRect(l.x, l.y, l.width, l.height);
+  }
 }
 
 function drawTrain (t) {
@@ -284,18 +240,7 @@ function drawTrain (t) {
   gradient.addColorStop(train.colorStops[1], train.colors[1]);
   gradient.addColorStop(train.colorStops[2], train.colors[1]);
   gradient.addColorStop(train.colorStops[3], train.colors[0]);
-  ctx.fillStyle = gradient;
-  ctx.beginPath();
-  ctx.moveTo(t.x + train.arcX, t.y);
-  ctx.lineTo(t.x + t.width - train.arcX, t.y);
-  ctx.quadraticCurveTo(t.x + t.width, t.y, t.x + t.width, t.y + train.arcY);
-  ctx.lineTo(t.x + t.width, t.y + train.height - train.arcY);
-  ctx.quadraticCurveTo(t.x + t.width, t.y + train.height, t.x + t.width - train.arcX, t.y + train.height);
-  ctx.lineTo(t.x + train.arcX, t.y + train.height);
-  ctx.quadraticCurveTo(t.x, t.y + train.height, t.x, t.y + train.height - train.arcY);
-  ctx.lineTo(t.x, t.y + train.arcY);
-  ctx.quadraticCurveTo(t.x, t.y, t.x + train.arcX, t.y);
-  ctx.fill();
+  paintRoundRect(t.x, t.y, t.width, train.height, train.arcX, train.arcY, gradient);
 }
 
 function addExplosion (x, y, hits) {
@@ -402,11 +347,11 @@ function processTurtle (frames) {
 
 function createMeteors () {
   if (Math.random() < meteor.probability) {
-    const radius = Math.floor(meteor.lowestRadius + Math.random() * (meteor.highestRadius - meteor.lowestRadius));
-    const x = Math.floor(radius + Math.random() * (canvas.width - 2 * radius));
-    const y = Math.floor(radius + Math.random() * (lane.countY * lane.height - 2 * radius));
+    const radius = generateRandomNumber(meteor.lowestRadius, meteor.highestRadius);
+    const x = generateRandomNumber(radius, canvas.width - radius);
+    const y = generateRandomNumber(radius, lane.countY * lane.height - radius);
     for (const m of meteors) {
-      if (circleCircle(m.x, m.y, m.radius, x, y, radius)) {
+      if (getDistance(m, { x, y }) < m.radius + radius) {
         return;
       }
     }
@@ -414,7 +359,7 @@ function createMeteors () {
       x,
       y,
       radius,
-      count: Math.floor(meteor.lowestDuration + Math.random() * (meteor.highestDuration - meteor.lowestDuration))
+      count: generateRandomNumber(meteor.lowestDuration, meteor.highestDuration)
     });
   }
 }
@@ -423,7 +368,7 @@ function createTrains () {
   if (Math.random() < train.probability) {
     let l;
     do {
-      l = Math.floor(Math.random() * lane.countY);
+      l = generateRandomInteger(lane.countY);
     } while (l % 3 !== 2);
     for (const t of trains) {
       if (t.lane === l) {
@@ -431,13 +376,13 @@ function createTrains () {
       }
     }
     const direction = Math.random() < 0.5 ? 1 : -1;
-    const width = Math.floor(train.lowestWidth + Math.random() * (train.highestWidth - train.lowestWidth));
+    const width = generateRandomNumber(train.lowestWidth, train.highestWidth);
     trains.push({
       x: direction === 1 ? -width : canvas.width,
       y: l * lane.height + (lane.height - train.height) / 2,
       width,
       lane: l,
-      speed: direction * (train.lowestSpeed + Math.random() * (train.highestSpeed - train.lowestSpeed))
+      speed: direction * generateRandomNumber(train.lowestSpeed, train.highestSpeed)
     });
   }
 }
@@ -449,7 +394,7 @@ function createVehicles () {
     let image = '.svg';
     let l;
     do {
-      l = Math.floor(Math.random() * lane.countY);
+      l = generateRandomInteger(lane.countY);
     } while (l % 3 === 2);
     if (l % 3 === 0) {
       x = canvas.width;
@@ -457,7 +402,7 @@ function createVehicles () {
       image = '_reverse.svg';
     }
     for (const v of vehicles) {
-      if (rectRect(v.x, v.y, vehicle.width, vehicle.height, x, l * lane.height, lane.width, lane.height)) {
+      if (isIntersectingRectangleWithRectangle(v, vehicle.width, vehicle.height, { x, y: l * lane.height }, lane.width, lane.height)) {
         return;
       }
     }
@@ -467,29 +412,29 @@ function createVehicles () {
       image: document.createElement('img'),
       direction,
       lane: l,
-      speed: direction * (vehicle.lowestSpeed + Math.random() * (vehicle.highestSpeed - vehicle.lowestSpeed))
+      speed: direction * generateRandomNumber(vehicle.lowestSpeed, vehicle.highestSpeed)
     });
-    vehicles[vehicles.length - 1].image.src = 'images/' + Math.floor(Math.random() * vehicle.total) + image;
+    vehicles[vehicles.length - 1].image.src = 'images/' + generateRandomInteger(vehicle.total) + image;
   }
 }
 
-function removeMeteors (ms) {
+function removeMeteors (frames) {
   for (let i = meteors.length - 1; i >= 0; i--) {
     const m = meteors[i];
     if (m.count > 0) {
-      m.count -= ms;
+      m.count -= frames;
     } else {
       let hits = 0;
       for (let j = trains.length - 1; j >= 0; j--) {
         const t = trains[j];
-        if (rectCircle(t, t.width, train.height, m)) {
+        if (isIntersectingRectangleWithCircle(t, t.width, train.height, m, m.radius)) {
           hits++;
           trains.splice(j, 1);
         }
       }
       for (let j = vehicles.length - 1; j >= 0; j--) {
         const v = vehicles[j];
-        if (rectCircle(v, vehicle.width, vehicle.height, m)) {
+        if (isIntersectingRectangleWithCircle(v, vehicle.width, vehicle.height, m, m.radius)) {
           hits++;
           vehicles.splice(j, 1);
         }
@@ -498,7 +443,7 @@ function removeMeteors (ms) {
         addExplosion(m.x, m.y, hits);
       }
       meteors.splice(i, 1);
-      if (rectCircle(turtle, turtle.width, turtle.height, m)) {
+      if (isIntersectingRectangleWithCircle(turtle, turtle.width, turtle.height, m, m.radius)) {
         die('Meteor');
         break;
       }
@@ -513,7 +458,7 @@ function removeTrains (frames) {
     if (t.x < -t.width || t.x > canvas.width) {
       trains.splice(i, 1);
     } else {
-      if (rectRect(t.x, t.y, t.width, train.height, turtle.x, turtle.y, turtle.width, turtle.height)) {
+      if (isIntersectingRectangleWithRectangle(t, t.width, train.height, turtle, turtle.width, turtle.height)) {
         die('Train');
         break;
       }
@@ -525,7 +470,7 @@ function removeVehicles (frames) {
   for (let i = vehicles.length - 1; i >= 0; i--) {
     const v1 = vehicles[i];
     for (const v2 of vehicles) {
-      if (v1.lane === v2.lane && v1 !== v2 && rectRect(v1.x, v1.y, vehicle.width, vehicle.height, v2.x, v2.y, vehicle.width, vehicle.height)) {
+      if (v1.lane === v2.lane && v1 !== v2 && isIntersectingRectangleWithRectangle(v1, vehicle.width, vehicle.height, v2, vehicle.width, vehicle.height)) {
         [v1.speed, v2.speed] = [v2.speed, v1.speed];
         if (v1.x < v2.x) {
           v1.x = v2.x - vehicle.width;
@@ -538,36 +483,12 @@ function removeVehicles (frames) {
     if (v1.x < -v1.width || v1.x > canvas.width) {
       vehicles.splice(i, 1);
     } else {
-      if (rectRect(v1.x, v1.y, vehicle.width, vehicle.height, turtle.x, turtle.y, turtle.width, turtle.height)) {
+      if (isIntersectingRectangleWithRectangle(v1, vehicle.width, vehicle.height, turtle, turtle.width, turtle.height)) {
         die('Vehicle');
         break;
       }
     }
   }
-}
-
-function rectRect (x1, y1, w1, h1, x2, y2, w2, h2) {
-  return x2 < x1 + w1 && x2 + w2 > x1 && y2 < y1 + h1 && y2 + h2 > y1;
-}
-
-function rectCircle (r, width, height, c) {
-  const distX = Math.abs(c.x - r.x - width / 2);
-  const distY = Math.abs(c.y - r.y - height / 2);
-  if (distX > (width / 2 + c.radius) || distY > (height / 2 + c.radius)) {
-    return false;
-  }
-  if (distX <= (width / 2) || distY <= (height / 2)) {
-    return true;
-  }
-  const dX = distX - width / 2;
-  const dY = distY - height / 2;
-  return dX ** 2 + dY ** 2 <= c.radius ** 2;
-}
-
-function circleCircle (x1, y1, r1, x2, y2, r2) {
-  const dX = x1 - x2;
-  const dY = y1 - y2;
-  return Math.sqrt(dX ** 2 + dY ** 2) < r1 + r2;
 }
 
 function levelUp () {
@@ -661,7 +582,7 @@ function keyUpHandler (e) {
   }
   if (e.keyCode === 80) {
     if (animation === undefined) {
-      animation = window.requestAnimationFrame(draw);
+      animation = window.requestAnimationFrame(gameLoop);
     } else {
       window.cancelAnimationFrame(animation);
       animation = undefined;
@@ -676,9 +597,4 @@ function mouseDownHandler (e) {
     const norm = Math.sqrt(x ** 2 + y ** 2);
     addRocket(x / norm * rocket.speed, y / norm * rocket.speed);
   }
-}
-
-function resizeHandler () {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
 }
