@@ -1,4 +1,4 @@
-/* global canvas ctx animation:writable gameLoop label addResize loop drawCircle paintCircle drawLine paintRoundRect isIntersectingRectangleWithRectangle isIntersectingRectangleWithCircle getDistance generateRandomNumber generateRandomInteger */
+/* global getSvg canvas ctx animation:writable gameLoop label addResize loop drawCircle paintCircle drawLine paintRoundRect isIntersectingRectangleWithRectangle isIntersectingRectangleWithCircle getDistance generateRandomNumber generateRandomInteger */
 let level = 1;
 let lives = 10;
 let rocketCount = 10;
@@ -82,13 +82,13 @@ const turtle = {
 };
 
 const vehicle = {
+  colors: ['ff0000', 'ff7f2a', 'ffff00', '00ff00', '00ffcc', '00ffff', '00ccff', 'ff00cc', 'ff00ff', 'cc00ff', 'e6e6e6', 'cccccc'],
   height: 0.6 * lane.height,
   highestSpeed: 1.5,
   lowestSpeed: 0.5,
   probability: 0.05,
   speedIncrement: 0.3,
   speed: 3 + 0.3 * (level - 1),
-  total: 12,
   width: 0.75 * lane.width
 };
 
@@ -391,7 +391,6 @@ function createVehicles () {
   if (Math.random() < vehicle.probability) {
     let x = -vehicle.width;
     let direction = 1;
-    let image = '.svg';
     let l;
     do {
       l = generateRandomInteger(lane.countY);
@@ -399,22 +398,22 @@ function createVehicles () {
     if (l % 3 === 0) {
       x = canvas.width;
       direction = -1;
-      image = '_reverse.svg';
     }
     for (const v of vehicles) {
       if (isIntersectingRectangleWithRectangle(v, vehicle.width, vehicle.height, { x, y: l * lane.height }, lane.width, lane.height)) {
         return;
       }
     }
+    const img = document.createElement('img');
+    img.src = getSvg(vehicle.colors[generateRandomInteger(vehicle.colors.length)], direction);
     vehicles.push({
       x,
       y: l * lane.height + (lane.height - vehicle.height) / 2,
-      image: document.createElement('img'),
+      image: img,
       direction,
       lane: l,
       speed: direction * generateRandomNumber(vehicle.lowestSpeed, vehicle.highestSpeed)
     });
-    vehicles[vehicles.length - 1].image.src = 'images/' + generateRandomInteger(vehicle.total) + image;
   }
 }
 
